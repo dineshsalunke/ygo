@@ -1,40 +1,26 @@
 package encoding
 
-import (
-	"bytes"
-	"encoding/binary"
-)
+import "github.com/dineshsalunke/ygo/pkg/core"
 
-type Encoder struct {
-	*bytes.Buffer
+type DsEncoder interface {
+	Bytes() []byte
+	ResetDsCurVal()
+	WriteDsClock(clock uint64) error
+	WriteDsLength(length uint64) error
 }
 
-func newEncoder(buf []byte) *Encoder {
-	return &Encoder{
-		Buffer: bytes.NewBuffer(buf),
-	}
-}
-
-func NewEncoder(buf []byte) *Encoder {
-	return newEncoder(buf)
-}
-
-func (encoder *Encoder) WriteVarUint(value uint64) error {
-	buf := binary.AppendUvarint([]byte{}, value)
-	return binary.Write(encoder, binary.LittleEndian, buf)
-}
-
-func (encoder *Encoder) WriteVarint(i int64) error {
-	buf := binary.AppendVarint([]byte{}, i)
-	return binary.Write(encoder, binary.LittleEndian, buf)
-}
-
-func (encoder *Encoder) WriteVarString(str string) error {
-	buff := []byte(str)
-	l := len(buff)
-	buf := binary.AppendUvarint([]byte{}, uint64(l))
-	if err := binary.Write(encoder, binary.LittleEndian, buf); err != nil {
-		return err
-	}
-	return binary.Write(encoder, binary.LittleEndian, buff)
+type UpdateEncoder interface {
+	DsEncoder
+	WriteLeftID(id *core.ID)
+	WriteRightID(id *core.ID)
+	WriteClient(client uint64)
+	WriteInfo(info uint8)
+	WriteString(str string)
+	WriteParentInfo(isYKey bool)
+	WriteTypeRef(info uint8)
+	WriteLength(length uint64)
+	WriteAny(val any)
+	WriteBuf(buf []byte)
+	WriteJSON(embed any)
+	WriteKey(key string)
 }

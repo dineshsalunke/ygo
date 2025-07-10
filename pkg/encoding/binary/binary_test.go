@@ -1,6 +1,7 @@
-package encoding
+package binary
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -11,6 +12,7 @@ func TestEncodingDecodingVarUint(t *testing.T) {
 	encoder.WriteVarint(2048)
 	encoder.WriteVarint(-2048)
 	encoder.WriteVarString("hello world")
+	encoder.WriteVarUintBytes([]byte{0x80, 0x22})
 
 	decoder := NewDecoder(encoder.Bytes())
 
@@ -52,6 +54,15 @@ func TestEncodingDecodingVarUint(t *testing.T) {
 		t.Errorf("failed to read var string %v", err)
 	}
 	if str != "hello world" {
+		t.Errorf("should have read 'hello world' but read '%v'", a)
+	}
+
+	bytes, err := decoder.ReadVarUintBytes()
+	if err != nil {
+		t.Errorf("failed to read var string %v", err)
+	}
+	fmt.Printf("these are the bytes read %+v \n", bytes)
+	if bytes[0] != 0x80 && bytes[1] != 0x22 {
 		t.Errorf("should have read 'hello world' but read '%v'", a)
 	}
 }

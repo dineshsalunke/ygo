@@ -18,7 +18,7 @@ func WriteSyncStep1(dec *binary.Decoder, enc *binary.Encoder, doc *core.Doc, txO
 	if err := enc.WriteVarUint(MessageSyncStep1); err != nil {
 		return err
 	}
-	buf, err := encoding.EncodeStateVectorV1(doc)
+	buf, err := encoding.EncodeStateVector(doc)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func WriteSyncStep2(enc *binary.Encoder, doc *core.Doc, sv []byte) error {
 	if err := enc.WriteVarUint(MessageSyncStep2); err != nil {
 		return err
 	}
-	buf, err := encoding.EncodeStateAsUpdateV1(doc, sv)
+	buf, err := encoding.EncodeStateAsUpdate(doc, sv)
 	if err != nil {
 		return err
 	}

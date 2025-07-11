@@ -9,8 +9,12 @@ type DsEncoderV1 struct {
 	encoder *binary.Encoder
 }
 
+func (encoder *DsEncoderV1) Encoder() *binary.Encoder {
+	return encoder.encoder
+}
+
 func (encoder *DsEncoderV1) Bytes() []byte {
-	panic("not implemented")
+	return encoder.encoder.Bytes()
 }
 
 func (encoder *DsEncoderV1) ResetDsCurVal() {

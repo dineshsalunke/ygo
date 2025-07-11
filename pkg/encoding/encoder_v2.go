@@ -9,6 +9,10 @@ type DsEncoderV2 struct {
 	encoder *binary.Encoder
 }
 
+func (encoder *DsEncoderV2) Encoder() *binary.Encoder {
+	return encoder.encoder
+}
+
 func (encoder *DsEncoderV2) Bytes() []byte {
 	panic("not implemented")
 }

@@ -1,12 +1,16 @@
 package encoding
 
-import "github.com/dineshsalunke/ygo/pkg/core"
+import (
+	"github.com/dineshsalunke/ygo/pkg/core"
+	"github.com/dineshsalunke/ygo/pkg/encoding/binary"
+)
 
 type DsEncoder interface {
 	Bytes() []byte
 	ResetDsCurVal()
 	WriteDsClock(clock uint64) error
 	WriteDsLength(length uint64) error
+	Encoder() *binary.Encoder
 }
 
 type UpdateEncoder interface {

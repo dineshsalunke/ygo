@@ -9,6 +9,12 @@ type DsEncoderV1 struct {
 	encoder *binary.Encoder
 }
 
+func NewDsEncoderV1(buf []byte) *DsEncoderV1 {
+	return &DsEncoderV1{
+		encoder: binary.NewEncoder(buf),
+	}
+}
+
 func (encoder *DsEncoderV1) Encoder() *binary.Encoder {
 	return encoder.encoder
 }
@@ -31,6 +37,12 @@ func (encoder *DsEncoderV1) WriteDsLength(length uint64) error {
 
 type UpdateEncoderV1 struct {
 	*DsEncoderV1
+}
+
+func NewUpdateEncoderV1(buf []byte) *UpdateEncoderV1 {
+	return &UpdateEncoderV1{
+		DsEncoderV1: NewDsEncoderV1(buf),
+	}
 }
 
 func (enc *UpdateEncoderV1) WriteLeftID(id *core.ID) {

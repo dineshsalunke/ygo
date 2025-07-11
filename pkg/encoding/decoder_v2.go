@@ -9,6 +9,12 @@ type DsDecoderV2 struct {
 	decoder *binary.Decoder
 }
 
+func NewDsDecoderV2(buf []byte) *DsDecoderV2 {
+	return &DsDecoderV2{
+		decoder: binary.NewDecoder(buf),
+	}
+}
+
 func (dec *DsDecoderV2) ResetDsCurVal() {
 	panic("not implemented")
 }
@@ -22,7 +28,13 @@ func (dec *DsDecoderV2) ReadDsLen() (uint64, error) {
 }
 
 type UpdateDecoderV2 struct {
-	*DsDecoderV1
+	*DsDecoderV2
+}
+
+func NewUpdateDecoderV2(buf []byte) *UpdateDecoderV2 {
+	return &UpdateDecoderV2{
+		DsDecoderV2: NewDsDecoderV2(buf),
+	}
 }
 
 func (dec *UpdateDecoderV2) ReadLeftID() (*core.ID, error) {

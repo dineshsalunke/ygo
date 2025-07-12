@@ -15,16 +15,16 @@ type DsEncoder interface {
 
 type UpdateEncoder interface {
 	DsEncoder
-	WriteLeftID(id *core.ID)
-	WriteRightID(id *core.ID)
-	WriteClient(client uint64)
-	WriteInfo(info uint8)
-	WriteString(str string)
-	WriteParentInfo(isYKey bool)
-	WriteTypeRef(info uint8)
-	WriteLength(length uint64)
-	WriteAny(val any)
-	WriteBuf(buf []byte)
-	WriteJSON(embed any)
-	WriteKey(key string)
+	WriteLeftID(id *core.ID) error
+	WriteRightID(id *core.ID) error
+	WriteClient(client uint64) error
+	WriteInfo(info uint8) error
+	WriteString(str string) error
+	WriteParentInfo(isYKey bool) error
+	WriteTypeRef(info uint8) error
+	WriteLength(length uint64) error
+	WriteAny(val any) error
+	WriteBuf(buf []byte) error
+	WriteJSON(embed any) error
+	WriteKey(key string) error
 }

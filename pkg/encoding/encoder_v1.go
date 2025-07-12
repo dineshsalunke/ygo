@@ -45,50 +45,50 @@ func NewUpdateEncoderV1(buf []byte) *UpdateEncoderV1 {
 	}
 }
 
-func (enc *UpdateEncoderV1) WriteLeftID(id *core.ID) {
+func (enc *UpdateEncoderV1) WriteLeftID(id *core.ID) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteRightID(id *core.ID) {
+func (enc *UpdateEncoderV1) WriteRightID(id *core.ID) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteClient(client uint64) {
+func (enc *UpdateEncoderV1) WriteClient(client uint64) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteInfo(info uint8) {
+func (enc *UpdateEncoderV1) WriteInfo(info uint8) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteString(str string) {
+func (enc *UpdateEncoderV1) WriteString(str string) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteParentInfo(isYKey bool) {
+func (enc *UpdateEncoderV1) WriteParentInfo(isYKey bool) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteTypeRef(info uint8) {
+func (enc *UpdateEncoderV1) WriteTypeRef(info uint8) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteLength(length uint64) {
+func (enc *UpdateEncoderV1) WriteLength(length uint64) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteAny(val any) {
+func (enc *UpdateEncoderV1) WriteAny(val any) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteBuf(buf []byte) {
+func (enc *UpdateEncoderV1) WriteBuf(buf []byte) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteJSON(embed any) {
+func (enc *UpdateEncoderV1) WriteJSON(embed any) error {
 	panic("not implemented")
 }
 
-func (enc *UpdateEncoderV1) WriteKey(key string) {
+func (enc *UpdateEncoderV1) WriteKey(key string) error {
 	panic("not implemented")
 }

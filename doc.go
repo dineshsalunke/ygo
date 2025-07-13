@@ -2,21 +2,44 @@ package ygo
 
 import "fmt"
 
+type gcFilter func(doc SharedType) bool
+
 type Doc struct {
+	guid         string
+	gc           bool
+	gcFilter     gcFilter
+	collectionId *string
+	meta         any
+	shouldLoad   bool
+	autoLoad     bool
+	//
 	share               map[string]SharedType
 	store               *StructStore
 	transaction         *Transaction
 	transactionCleanups []*Transaction
 }
 
-func newDoc() *Doc {
-	return &Doc{
-		store: newStructStore(),
+func newDoc(opts ...DocOption) *Doc {
+	doc := &Doc{
+		collectionId:        nil,
+		gc:                  true,
+		meta:                nil,
+		shouldLoad:          true,
+		autoLoad:            false,
+		share:               make(map[string]SharedType),
+		store:               newStructStore(),
+		transactionCleanups: make([]*Transaction, 0),
 	}
+
+	for _, opt := range opts {
+		opt(doc)
+	}
+
+	return doc
 }
 
-func NewDoc() *Doc {
-	return newDoc()
+func NewDoc(opts ...DocOption) *Doc {
+	return newDoc(opts...)
 }
 
 func (doc *Doc) GetMap(name string) (*YMap, error) {

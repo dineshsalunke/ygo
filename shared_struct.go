@@ -6,4 +6,5 @@ type SharedStruct interface {
 	Length() uint64
 	Deleted() bool
 	Delete(*Transaction) error
+	Write(encoder UpdateEncoder, offset uint64) error
 }

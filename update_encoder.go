@@ -1,6 +1,7 @@
 package ygo
 
 type DsEncoder interface {
+	Encoder() *Encoder
 	Bytes() []byte
 	ResetDsCurVal() error
 	WriteDsClock(clock uint64) error

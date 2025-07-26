@@ -1,0 +1,13 @@
+{
+  "name": "ygo-testdata",
+  "version": "1.0.0",
+  "description": "Test data generation for ygo using lib0",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.js"
+  },
+  "dependencies": {
+    "lib0": "^0.2.97",
+    "yjs": "^13.6.18"
+  }
+}

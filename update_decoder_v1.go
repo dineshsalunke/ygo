@@ -76,11 +76,11 @@ func (dec *UpdateDecoderV1) ReadLength() (uint64, error) {
 }
 
 func (dec *UpdateDecoderV1) ReadAny() (any, error) {
-	return dec.ReadAny()
+	return dec.BinaryDecoder.ReadAny()
 }
 
 func (dec *UpdateDecoderV1) ReadJson() (any, error) {
-	return dec.ReadAny()
+	return dec.BinaryDecoder.ReadAny()
 }
 
 func (dec *UpdateDecoderV1) ReadKey() (string, error) {

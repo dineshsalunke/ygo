@@ -22,7 +22,7 @@ type UpdateDecoder interface {
 	ReadUint32() (uint32, error)
 	ReadVarUint() (uint64, error)
 	ReadVarint() (int64, error)
-	ReadUint8Array() ([]byte, error)
+	ReadUint8Array(length uint64) ([]byte, error)
 	ReadVarUint8Array() ([]byte, error)
 	ReadVarString() (string, error)
 	ReadFloat32() (float32, error)

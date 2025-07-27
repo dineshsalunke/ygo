@@ -27,7 +27,7 @@ func (dec *UpdateDecoderV1) ReadLeftID() (*ID, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newID(client, clock), nil
+	return newID(ClientID(client), clock), nil
 }
 
 func (dec *UpdateDecoderV1) ReadRightID() (*ID, error) {
@@ -39,11 +39,12 @@ func (dec *UpdateDecoderV1) ReadRightID() (*ID, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newID(client, clock), nil
+	return newID(ClientID(client), clock), nil
 }
 
 func (dec *UpdateDecoderV1) ReadClient() (ClientID, error) {
-	return dec.ReadVarUint()
+	client_id, err := dec.ReadVarUint()
+	return ClientID(client_id), err
 }
 
 func (dec *UpdateDecoderV1) ReadInfo() (byte, error) {

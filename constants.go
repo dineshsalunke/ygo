@@ -1,5 +1,11 @@
+package ygo
 
 const (
+	HasOriginFlag      byte = 0b10000000
+	HasRightOriginFlag byte = 0b01000000
+	HasParentSubFlag   byte = 0b00100000
+)
+
 const (
 	BlockKindGC          Kind = 0
 	BlockKindItemDeleted Kind = 1

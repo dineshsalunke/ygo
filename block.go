@@ -12,6 +12,10 @@ type block struct {
 	length uint64
 }
 
+func newBlock(id *ID, length uint64) *block {
+	return &block{id: id, length: length}
+}
+
 func (self *block) Length() uint64 {
 	return self.length
 }
@@ -20,7 +24,7 @@ type GC struct{ *block }
 
 func newGC(id *ID, length uint64) *GC {
 	return &GC{
-		block: &block{id: id, length: length},
+		block: newBlock(id, length),
 	}
 }
 
@@ -34,7 +38,7 @@ type Skip struct {
 
 func newSkip(id *ID, length uint64) *GC {
 	return &GC{
-		block: &block{id: id, length: length},
+		block: newBlock(id, length),
 	}
 }
 

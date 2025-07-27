@@ -17,6 +17,6 @@ func (self *Item) Kind() Kind {
 	panic("not implemented")
 }
 
-func decode_item(decoder UpdateDecoder, info byte) (*Item, error) {
+func decode_item(id *ID, decoder UpdateDecoder, info byte) (*Item, error) {
 	panic("not implemented")
 }

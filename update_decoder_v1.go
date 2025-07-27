@@ -4,18 +4,28 @@ type UpdateDecoderV1 struct {
 	*BinaryDecoder
 }
 
+func newUpdateDecoderV1(buf []byte) *UpdateDecoderV1 {
+	return &UpdateDecoderV1{
+		BinaryDecoder: newDecoder(buf),
+	}
+}
+
+func NewUpdateDecoderV1(buf []byte) *UpdateDecoderV1 {
+	return newUpdateDecoderV1(buf)
+}
+
 func (dec *UpdateDecoderV1) ResetDsCurrVal() {
 	// This is a noop
 }
 
-func (dec *UpdateDecoderV1) ReadDsClock() (uint32, error) {
+func (dec *UpdateDecoderV1) ReadDsClock() (uint64, error) {
 	b, err := dec.ReadVarUint()
-	return uint32(b), err
+	return b, err
 }
 
-func (dec *UpdateDecoderV1) ReadDsLength() (uint32, error) {
+func (dec *UpdateDecoderV1) ReadDsLength() (uint64, error) {
 	b, err := dec.ReadVarUint()
-	return uint32(b), err
+	return b, err
 }
 
 func (dec *UpdateDecoderV1) ReadLeftID() (*ID, error) {
@@ -60,9 +70,9 @@ func (dec *UpdateDecoderV1) ReadTypeRef() (byte, error) {
 	return dec.ReadByte()
 }
 
-func (dec *UpdateDecoderV1) ReadLength() (uint32, error) {
+func (dec *UpdateDecoderV1) ReadLength() (uint64, error) {
 	b, err := dec.ReadVarUint()
-	return uint32(b), err
+	return b, err
 }
 
 func (dec *UpdateDecoderV1) ReadAny() (any, error) {

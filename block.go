@@ -41,11 +41,3 @@ func newSkip(id *ID, length uint64) *GC {
 func (self *Skip) Kind() Kind {
 	return BlockKindSkip
 }
-
-type Item struct {
-	*block
-}
-
-func (self *Item) Kind() Kind {
-	panic("not implemented")
-}

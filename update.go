@@ -9,19 +9,19 @@ type Update struct {
 }
 
 func decode_block(id *ID, decoder UpdateDecoder) (Block, error) {
-	info, err := decoder.ReadVarUint()
+	info, err := decoder.ReadInfo()
 	if err != nil {
 		return nil, err
 	}
-	switch info {
-	case uint64(BlockKindSkip):
+	switch Kind(info) {
+	case BlockKindSkip:
 		length, err := decoder.ReadVarUint()
 		if err != nil {
 			return nil, err
 		}
 		val := newSkip(id, length)
 		return val, nil
-	case uint64(BlockKindGC):
+	case BlockKindGC:
 		length, err := decoder.ReadLength()
 		if err != nil {
 			return nil, err
@@ -29,7 +29,7 @@ func decode_block(id *ID, decoder UpdateDecoder) (Block, error) {
 		val := newGC(id, length)
 		return val, nil
 	default:
-		item, err := decode_item(decoder, byte(info))
+		item, err := decode_item(id, decoder, Kind(info))
 		if err != nil {
 			return nil, err
 		}
@@ -62,7 +62,10 @@ func decode_update(decoder UpdateDecoder) (*Update, error) {
 			return nil, err
 		}
 
-		blocks := make([]Block, 0, blocks_length)
+		blocks, ok := update_blocks.clients[client]
+		if !ok {
+			blocks = make([]Block, 0, blocks_length)
+		}
 
 		for range blocks_length {
 			id := newID(client, clock)
@@ -73,6 +76,8 @@ func decode_update(decoder UpdateDecoder) (*Update, error) {
 			clock += block.Length()
 			blocks = append(blocks, block)
 		}
+
+		update_blocks.clients[client] = blocks
 	}
 
 	delete_set, err := decode_id_set(decoder)

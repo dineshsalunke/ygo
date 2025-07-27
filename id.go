@@ -2,7 +2,7 @@ package ygo
 
 import "fmt"
 
-type ClientID = uint64
+type ClientID uint64
 
 type ID struct {
 	client ClientID

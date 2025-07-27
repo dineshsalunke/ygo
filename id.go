@@ -22,5 +22,5 @@ func NewID(client ClientID, clock uint64) *ID {
 
 // Implement the fmt Stringer interface
 func (id *ID) String() string {
-	return fmt.Sprintf("%d:%d", id.client, id.client)
+	return fmt.Sprintf("%d:%d", id.client, id.clock)
 }

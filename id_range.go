@@ -22,3 +22,10 @@ func (ir *IdRange) start() uint64 {
 func (ir *IdRange) end() uint64 {
 	return ir.clock + ir.length
 }
+
+func newIdRange(clock, length uint64) *IdRange {
+	return &IdRange{
+		clock:  clock,
+		length: length,
+	}
+}

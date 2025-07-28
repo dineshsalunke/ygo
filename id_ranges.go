@@ -1,6 +1,7 @@
 package ygo
 
 import "slices"
+
 type IdRanges struct {
 	sorted    bool
 	last_used bool
@@ -14,6 +15,26 @@ func newIdRanges(ids []*IdRange) *IdRanges {
 		ids:       ids,
 	}
 }
+
+func (self *IdRanges) addIdRange(clock, length uint64) {
+	var last *IdRange
+	if len(self.ids) > 0 {
+		last = self.ids[len(self.ids)-1]
+	}
+	if last != nil && last.clock+last.length == clock {
+		if self.last_used {
+			self.ids[len(self.ids)-1] = newIdRange(last.clock, last.length+length)
+			last.length += length
+			self.last_used = false
+		} else {
+			last.length += length
+		}
+	} else {
+		self.sorted = false
+		self.ids = append(self.ids, newIdRange(clock, length))
+	}
+}
+
 func (irs *IdRanges) squash() []*IdRange {
 	irs.last_used = true
 	if !irs.sorted {

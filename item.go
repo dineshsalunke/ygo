@@ -17,6 +17,14 @@ func (self *Item) Kind() Kind {
 	panic("not implemented")
 }
 
+func (self *Item) Length() uint64 {
+	return self.length
+}
+
+func (self *Item) ID() *ID {
+	return self.id
+}
+
 func decode_item(id *ID, decoder UpdateDecoder, info Kind) (*Item, error) {
 	var err error
 	var item *Item = &Item{}

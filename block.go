@@ -5,6 +5,7 @@ type Kind byte
 type Block interface {
 	Kind() Kind
 	Length() uint64
+	ID() *ID
 }
 
 type block struct {
@@ -32,6 +33,14 @@ func (self *GC) Kind() Kind {
 	return BlockKindGC
 }
 
+func (self *GC) Length() uint64 {
+	return self.length
+}
+
+func (self *GC) ID() *ID {
+	return self.id
+}
+
 type Skip struct {
 	*block
 }
@@ -44,4 +53,12 @@ func newSkip(id *ID, length uint64) *GC {
 
 func (self *Skip) Kind() Kind {
 	return BlockKindSkip
+}
+
+func (self *Skip) Length() uint64 {
+	return self.length
+}
+
+func (self *Skip) ID() *ID {
+	return self.id
 }

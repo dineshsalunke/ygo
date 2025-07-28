@@ -1,7 +1,9 @@
 package ygo
 
+type IdSet struct {
+	clients map[ClientID]*IdRanges
+}
 
-type IdSet map[ClientID]IdRanges
 
 func decode_id_set(decoder UpdateDecoder) (IdSet, error) {
 	panic("not implemented")

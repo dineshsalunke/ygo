@@ -1,7 +1,5 @@
 package ygo
 
-type IdRange struct{}
-type IdRanges []*IdRange
 
 type IdSet map[ClientID]IdRanges
 

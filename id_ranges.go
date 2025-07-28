@@ -3,16 +3,16 @@ package ygo
 import "slices"
 
 type IdRanges struct {
-	sorted    bool
-	last_used bool
-	ids       []*IdRange
+	sorted   bool
+	lastUsed bool
+	ids      []*IdRange
 }
 
 func newIdRanges(ids []*IdRange) *IdRanges {
 	return &IdRanges{
-		sorted:    false,
-		last_used: false,
-		ids:       ids,
+		sorted:   false,
+		lastUsed: false,
+		ids:      ids,
 	}
 }
 
@@ -22,10 +22,10 @@ func (self *IdRanges) addIdRange(clock, length uint64) {
 		last = self.ids[len(self.ids)-1]
 	}
 	if last != nil && last.clock+last.length == clock {
-		if self.last_used {
+		if self.lastUsed {
 			self.ids[len(self.ids)-1] = newIdRange(last.clock, last.length+length)
 			last.length += length
-			self.last_used = false
+			self.lastUsed = false
 		} else {
 			last.length += length
 		}
@@ -36,7 +36,7 @@ func (self *IdRanges) addIdRange(clock, length uint64) {
 }
 
 func (irs *IdRanges) squash() []*IdRange {
-	irs.last_used = true
+	irs.lastUsed = true
 	if !irs.sorted {
 		irs.sorted = true
 		slices.SortFunc(irs.ids, func(a, b *IdRange) int {

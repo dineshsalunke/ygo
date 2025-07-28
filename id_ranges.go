@@ -1,5 +1,6 @@
 package ygo
 
+import "slices"
 type IdRanges struct {
 	sorted    bool
 	last_used bool

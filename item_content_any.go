@@ -23,7 +23,7 @@ func (content *ItemContentAny) GetRef() Kind {
 }
 
 func init() {
-	decoders[BlockKindItemAny] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
+	Decoders[BlockKindItemAny] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
 		length, err := decoder.ReadLength()
 		if err != nil {
 			return nil, err

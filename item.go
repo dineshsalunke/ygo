@@ -68,7 +68,7 @@ func decode_item(id *ID, decoder UpdateDecoder, info Kind) (*Item, error) {
 		}
 	}
 
-	item.content, err = decode_item_content(decoder, info)
+	item.content, err = decodeItemContent(decoder, info)
 	if err != nil {
 		return nil, err
 	}

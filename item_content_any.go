@@ -18,6 +18,10 @@ func (content *ItemContentAny) IsCountable() bool {
 	return true
 }
 
+func (content *ItemContentAny) GetRef() Kind {
+	return BlockKindItemAny
+}
+
 func init() {
 	decoders[BlockKindItemAny] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
 		length, err := decoder.ReadLength()

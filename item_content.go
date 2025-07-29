@@ -9,6 +9,7 @@ var decoders map[Kind]item_content_decoder = make(map[Kind]item_content_decoder,
 type ItemContent interface {
 	IsCountable() bool
 	Length() uint64
+	GetRef() Kind
 }
 
 func decode_item_content(decoder UpdateDecoder, info Kind) (ItemContent, error) {

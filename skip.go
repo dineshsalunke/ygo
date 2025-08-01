@@ -10,6 +10,10 @@ func newSkip(id *ID, length uint64) *GC {
 	}
 }
 
+func (self *Skip) Parent() SharedType {
+	return nil
+}
+
 func (self *Skip) Kind() Kind {
 	return BlockKindSkip
 }

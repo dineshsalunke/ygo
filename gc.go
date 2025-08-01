@@ -8,6 +8,10 @@ func newGC(id *ID, length uint64) *GC {
 	}
 }
 
+func (self *GC) Parent() SharedType {
+	return nil
+}
+
 func (self *GC) Kind() Kind {
 	return BlockKindGC
 }

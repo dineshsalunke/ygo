@@ -6,6 +6,7 @@ type Block interface {
 	Kind() Kind
 	Length() uint64
 	ID() *ID
+	Parent() SharedType
 }
 
 type block struct {

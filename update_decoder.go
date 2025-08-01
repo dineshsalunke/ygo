@@ -7,7 +7,7 @@ type UpdateDecoder interface {
 	ReadDsLength() (uint64, error)
 	ReadLeftID() (*ID, error)
 	ReadRightID() (*ID, error)
-	ReadClient() (ClientID, error)
+	ReadClient() (uint64, error)
 	ReadInfo() (byte, error)
 	ReadParentInfo() (bool, error)
 	ReadTypeRef() (byte, error)

@@ -6,7 +6,7 @@ type UpdateEncoder interface {
 	WriteDsLength(length uint64) error
 	WriteLeftID(id *ID) error
 	WriteRightID(id *ID) error
-	WriteClient(clientId ClientID) error
+	WriteClient(clientId uint64) error
 	WriteInfo(info byte) error
 	WriteParentInfo(hasParentInfo bool) error
 	WriteTypeRef(ref byte) error

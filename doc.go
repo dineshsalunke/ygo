@@ -1,9 +1,5 @@
 package ygo
 
-import (
-	"fmt"
-)
-
 type Doc struct {
 	share map[string]SharedType
 }
@@ -23,5 +19,11 @@ func (doc *Doc) get(key string) (SharedType, error) {
 	if has {
 		return t, nil
 	}
-	return nil, fmt.Errorf("no type registered for key %s", key)
+
+	t = &BaseSharedType{}
+	if err := t.Integrate(doc, nil); err != nil {
+		return nil, err
+	}
+	doc.share[key] = t
+	return t, nil
 }

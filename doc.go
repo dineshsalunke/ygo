@@ -1,12 +1,14 @@
 package ygo
 
 type Doc struct {
+	store *StructStore
 	share map[string]SharedType
 }
 
 func newDoc() *Doc {
 	return &Doc{
 		share: make(map[string]SharedType),
+		store: newStructStore(),
 	}
 }
 

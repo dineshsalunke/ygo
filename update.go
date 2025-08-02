@@ -64,14 +64,31 @@ func readStructSet(decoder UpdateDecoder, tx *Transaction) (*StructSet, error) {
 }
 
 func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
+	store := tx.doc.store
 	// Read remote updates
-	_, err := readStructSet(decoder, tx)
+	remoteUpdates, err := readStructSet(decoder, tx)
 	if err != nil {
 		return err
 	}
 
 	// TODO: find all local updates for remote clients
-	// TODOD: remove all the overlapping updates of same remote and local clients
+	localState := newIdSet()
+	for remoteClientId := range remoteUpdates.clients {
+		localBlocks, has := store.clients[remoteClientId]
+		if has {
+			// Assume all the local updates are contigous and insert the remote updates at last
+			lastBlock := localBlocks[len(localBlocks)-1]
+			localState.add(remoteClientId, 0, lastBlock.ClockLength())
+			idRanges, ok := store.skips.clients[remoteClientId]
+			if ok {
+				for _, idRange := range idRanges.getIdRanges() {
+					localState.delete(remoteClientId, idRange.clock, idRange.length)
+				}
+			}
+		}
+	}
+
+	// TODO: remove all the overlapping updates of same remote and local clients
 
 	// TODO: Integrate remote updates, and return udpates for which deps could not be resolved
 	// TODO: Check if we have pending updates to be merged, if any then merge else assign the missing deps update to pending updates

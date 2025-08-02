@@ -1,0 +1,51 @@
+package ygo
+
+import (
+	"fmt"
+)
+
+type ContentTypeKind byte
+
+type ContentTypeDecoderFactory func(decoder UpdateDecoder) (SharedType, error)
+
+var ContentTypeFactories map[ContentTypeKind]ContentTypeDecoderFactory = make(map[ContentTypeKind]ContentTypeDecoderFactory)
+
+type ItemContentType struct {
+	sharedType SharedType
+}
+
+func newItemContentType(sharedType SharedType) *ItemContentType {
+	return &ItemContentType{
+		sharedType: sharedType,
+	}
+}
+
+func (content *ItemContentType) Length() uint64 {
+	return 1
+}
+
+func (content *ItemContentType) IsCountable() bool {
+	return true
+}
+
+func (content *ItemContentType) GetRef() Kind {
+	return BlockKindItemMove
+}
+
+func init() {
+	Decoders[BlockKindItemType] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
+		typeRef, err := decoder.ReadTypeRef()
+		if err != nil {
+			return nil, err
+		}
+		factory, has := ContentTypeFactories[ContentTypeKind(typeRef)]
+		if !has {
+			return nil, fmt.Errorf("%v factory not registered", ContentTypeKind(typeRef))
+		}
+		t, err := factory(decoder)
+		if err != nil {
+			return nil, err
+		}
+		return newItemContentType(t), nil
+	}
+}

@@ -14,7 +14,7 @@ type Item struct {
 }
 
 func (self *Item) Kind() Kind {
-	panic("not implemented")
+	return Kind(self.info & 31)
 }
 
 func (self *Item) Length() uint64 {
@@ -25,9 +25,17 @@ func (self *Item) ID() *ID {
 	return self.id
 }
 
-func decode_item(id *ID, decoder UpdateDecoder, info Kind) (*Item, error) {
+func (self *Item) Parent() SharedType {
+	return self.parent.(SharedType)
+}
+
+func decodeItem(id *ID, decoder UpdateDecoder, info Kind, doc *Doc) (*Item, error) {
 	var err error
-	var item *Item = &Item{}
+	var item *Item = &Item{
+		block: &block{
+			id: id,
+		},
+	}
 	cant_copy_parent_info := byte(info)&(HasOriginFlag|HasRightOriginFlag) == 0
 
 	if byte(info)&HasOriginFlag != 0 {
@@ -49,7 +57,12 @@ func decode_item(id *ID, decoder UpdateDecoder, info Kind) (*Item, error) {
 		}
 		if parent_info {
 			// Parent string
-			_, err := decoder.ReadVarString()
+			// TODO: Get the parent item from the doc
+			key, err := decoder.ReadVarString()
+			if err != nil {
+				return nil, err
+			}
+			item.parent, err = doc.get(key)
 			if err != nil {
 				return nil, err
 			}
@@ -72,9 +85,6 @@ func decode_item(id *ID, decoder UpdateDecoder, info Kind) (*Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	item.block = &block{
-		id:     id,
-		length: item.content.Length(),
-	}
+	item.block.length = item.content.Length()
 	return item, nil
 }

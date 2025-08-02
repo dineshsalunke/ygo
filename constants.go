@@ -11,7 +11,7 @@ const (
 	BlockKindItemDeleted Kind = 1
 	BlockKindItemJson    Kind = 2
 	BlockKindItemBinary  Kind = 3
-	blockkindItemString  Kind = 4
+	BlockKindItemString  Kind = 4
 	BlockKindItemEmbed   Kind = 5
 	BlockKindItemFormat  Kind = 6
 	BlockKindItemType    Kind = 7

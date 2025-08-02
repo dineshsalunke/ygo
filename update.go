@@ -1,93 +1,96 @@
 package ygo
 
-type UpdateBlocks struct {
-	clients map[ClientID][]Block
-}
-type Update struct {
-	blocks     *UpdateBlocks
-	delete_set IdSet
-}
-
-func decode_block(id *ID, decoder UpdateDecoder) (Block, error) {
-	info, err := decoder.ReadInfo()
+func readStructSet(decoder UpdateDecoder, tx *Transaction) (*StructSet, error) {
+	numOfUpdates, err := decoder.ReadVarUint()
 	if err != nil {
 		return nil, err
 	}
-	switch Kind(info) {
-	case BlockKindSkip:
-		length, err := decoder.ReadVarUint()
-		if err != nil {
-			return nil, err
-		}
-		val := newSkip(id, length)
-		return val, nil
-	case BlockKindGC:
-		length, err := decoder.ReadLength()
-		if err != nil {
-			return nil, err
-		}
-		val := newGC(id, length)
-		return val, nil
-	default:
-		item, err := decode_item(id, decoder, Kind(info))
-		if err != nil {
-			return nil, err
-		}
-		return item, nil
-	}
-}
+	ss := newStructSet(numOfUpdates)
 
-func decode_update(decoder UpdateDecoder) (*Update, error) {
-	clients_length, err := decoder.ReadVarUint()
-	if err != nil {
-		return nil, err
-	}
-
-	clients := make(map[ClientID][]Block, clients_length)
-	update_blocks := &UpdateBlocks{
-		clients: clients,
-	}
-
-	for range clients_length {
-		blocks_length, err := decoder.ReadVarUint()
+	for range numOfUpdates {
+		numOfStructs, err := decoder.ReadVarUint()
 		if err != nil {
 			return nil, err
 		}
+
 		client, err := decoder.ReadClient()
 		if err != nil {
 			return nil, err
 		}
+
 		clock, err := decoder.ReadVarUint()
 		if err != nil {
 			return nil, err
 		}
 
-		blocks, ok := update_blocks.clients[client]
-		if !ok {
-			blocks = make([]Block, 0, blocks_length)
-		}
-
-		for range blocks_length {
-			id := newID(client, clock)
-			block, err := decode_block(id, decoder)
+		id := newID(client, clock)
+		refs := make([]Block, numOfStructs)
+		for i := range numOfStructs {
+			info, err := decoder.ReadInfo()
 			if err != nil {
 				return nil, err
 			}
-			clock += block.Length()
-			blocks = append(blocks, block)
+			switch Kind(info & 31) {
+			case BlockKindGC:
+				length, err := decoder.ReadLength()
+				if err != nil {
+					return nil, err
+				}
+				block := newGC(id, length)
+				refs[i] = block
+				clock = clock + length
+			case BlockKindSkip:
+				length, err := decoder.ReadVarUint()
+				if err != nil {
+					return nil, err
+				}
+				block := newSkip(id, length)
+				refs[i] = block
+				clock = clock + length
+			default:
+				block, err := decodeItem(id, decoder, Kind(info), tx.doc)
+				if err != nil {
+					return nil, err
+				}
+				refs[i] = block
+				clock = clock + block.Length()
+			}
+
 		}
-
-		update_blocks.clients[client] = blocks
+		ss.addRange(client, refs)
 	}
 
-	delete_set, err := decode_id_set(decoder)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Update{blocks: update_blocks, delete_set: delete_set}, nil
+	return ss, nil
 }
 
-func DecodeUpdate(decoder UpdateDecoder) (*Update, error) {
-	return decode_update(decoder)
+func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
+	// Read remote updates
+	_, err := readStructSet(decoder, tx)
+	if err != nil {
+		return err
+	}
+
+	// TODO: find all local updates for remote clients
+	// TODOD: remove all the overlapping updates of same remote and local clients
+
+	// TODO: Integrate remote updates, and return udpates for which deps could not be resolved
+	// TODO: Check if we have pending updates to be merged, if any then merge else assign the missing deps update to pending updates
+
+	// TODO: Read DeleteSet
+	// TODO: Apply DeleteSet, return the ones which couldn't be applied
+	// TODO: Check for pending DeleteSet and apply it, else if we have any DeleteSet which couldn't be applied from earlier step then make a note of them
+
+	// TODO: check if something couldn't be applied due to missing deps, if any then retry applying update
+	return nil
+}
+
+func ApplyUpdateV2(doc *Doc, update []byte) error {
+	tx := newTransaction(doc, TransactionWithLocal(false))
+	decoder := newUpdateDecoderV1(update)
+
+	if err := applyUpdate(decoder, tx); err != nil {
+		return err
+	}
+
+	return tx.commitTransaction()
 }

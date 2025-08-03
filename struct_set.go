@@ -1,0 +1,103 @@
+package ygo
+
+import (
+	"cmp"
+	"fmt"
+	"slices"
+)
+
+type StructSet struct {
+	clients map[uint64]*StructRange
+}
+
+func (ss StructSet) GoString() string {
+	return fmt.Sprintf("StructSet {\n\t clients: %#v \n}", ss.clients)
+}
+
+func (ss StructSet) String() string {
+	return fmt.Sprintf("StructSet {\n\t clients: %#v \n}", ss.clients)
+}
+
+func newStructSet(length uint64) *StructSet {
+	return &StructSet{
+		clients: make(map[uint64]*StructRange, length),
+	}
+}
+
+func (ss *StructSet) addRange(client uint64, refs []Block) {
+	ss.clients[client] = &StructRange{
+		refs: refs,
+	}
+}
+
+// TODO: Handle the case where element not found
+func findIndexCleanStart(tx *Transaction, blocks []Block, clock uint64) (uint64, error) {
+	index, exists := slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
+		if b.ID().clock <= c && c < b.ClockLength() {
+			return 0
+		}
+		return cmp.Compare(b.ClockLength(), c)
+	})
+	if !exists {
+		return 0, fmt.Errorf("no block found for clock %d", clock)
+	}
+
+	block := blocks[index]
+	if block.ID().clock < clock {
+		nBlock := block.Splice(clock-block.ID().clock, tx)
+		blocks = slices.Insert(blocks, index+1, nBlock)
+		return uint64(index + 1), nil
+	}
+
+	return uint64(index), nil
+}
+
+func (ss *StructSet) excludeIdSet(set *IdSet) error {
+	for excludeClientId, excludeRanges := range set.clients {
+		structRange, ok := ss.clients[excludeClientId]
+		if ok {
+			// blocks := structRange.refs
+			firstBlock := structRange.refs[0]
+			lastBlock := structRange.refs[len(structRange.refs)-1]
+			for _, excludeRange := range excludeRanges.getIdRanges() {
+				var err error
+				startIndex := uint64(0)
+				endIndex := uint64(0)
+
+				// No need to exclude range if its clock is greater than highest block in store
+				if excludeRange.clock >= lastBlock.ClockLength() {
+					continue
+				}
+				// find first id range whose clock is greater than excludeRange clock
+				if excludeRange.clock > firstBlock.ID().clock {
+					startIndex, err = findIndexCleanStart(nil, structRange.refs, excludeRange.clock)
+					if err != nil {
+						return err
+					}
+				}
+
+				endIndex = uint64(len(structRange.refs))
+				if excludeRange.clock+excludeRange.length <= firstBlock.ID().clock {
+					continue
+				}
+				if excludeRange.end() < lastBlock.ClockLength() {
+					endIndex, err = findIndexCleanStart(nil, structRange.refs, excludeRange.end())
+					if err != nil {
+						return err
+					}
+				}
+
+				if startIndex < endIndex {
+					structRange.refs[startIndex] = newSkip(newID(excludeClientId, excludeRange.clock), excludeRange.length)
+					diff := endIndex - startIndex
+					if diff > 1 {
+						i := int(startIndex + 1)
+						j := int(i + int(diff) - 1)
+						structRange.refs = slices.Delete(structRange.refs, i, j)
+					}
+				}
+			}
+		}
+	}
+	return nil
+}

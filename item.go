@@ -3,7 +3,7 @@ package ygo
 type Item struct {
 	*block
 	origin       *ID
-	left         block
+	left         Block
 	right_origin *ID
 	right        Block
 	parent       any

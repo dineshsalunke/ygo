@@ -1,11 +1,17 @@
 package ygo
 
+import "fmt"
+
 type Skip struct {
 	*block
 }
 
-func newSkip(id *ID, length uint64) *GC {
-	return &GC{
+func (self *Skip) GoString() string {
+	return fmt.Sprintf("Skip{id:%#v,length:%d}", self.id, self.length)
+}
+
+func newSkip(id *ID, length uint64) *Skip {
+	return &Skip{
 		block: newBlock(id, length),
 	}
 }

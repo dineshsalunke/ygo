@@ -1,6 +1,7 @@
 package ygo
 
 import "fmt"
+
 type Item struct {
 	*block
 	origin       *ID
@@ -92,4 +93,48 @@ func decodeItem(id *ID, decoder UpdateDecoder, info Kind, doc *Doc) (*Item, erro
 	}
 	item.block.length = item.content.Length()
 	return item, nil
+}
+
+func (item *Item) Splice(diff uint64, tx *Transaction) Block {
+	rightItem := &Item{
+		block: &block{
+			id: newID(item.id.client, item.id.clock+diff),
+		},
+		left:         item,
+		origin:       newID(item.id.client, item.id.clock+diff-1),
+		right:        item.right,
+		right_origin: item.right_origin,
+		parent:       item.parent,
+		parent_sub:   item.parent_sub,
+		content:      item.content.Splice(diff),
+	}
+	rightItem.length = rightItem.content.Length()
+
+	// TODO: if item is deleted then mark right item deleted
+	// TODO: if item is to be kept mark right item to be kept
+	// TODO: rightItem.red_one
+
+	if tx != nil {
+		// TODO: port this missing code
+
+		// // update left (do not set leftItem.rightOrigin as it will lead to problems when syncing)
+		// leftItem.right = rightItem
+		// // update right
+		// if (rightItem.right !== null) {
+		//   rightItem.right.left = rightItem
+		// }
+		// // right is more specific.
+		// transaction._mergeStructs.push(rightItem)
+		// // update parent._map
+		// if (rightItem.parentSub !== null && rightItem.right === null) {
+		//   /** @type {AbstractType<any>} */ (rightItem.parent)._map.set(rightItem.parentSub, rightItem)
+		// }
+	} else {
+		rightItem.left = nil
+		rightItem.right = nil
+	}
+	// TODO: handle transaction conditions
+
+	item.length = diff
+	return rightItem
 }

@@ -1,5 +1,6 @@
 package ygo
 
+import "fmt"
 type Item struct {
 	*block
 	origin       *ID
@@ -11,6 +12,10 @@ type Item struct {
 	red_one      Block
 	content      ItemContent
 	info         byte
+}
+
+func (self *Item) GoString() string {
+	return fmt.Sprintf("Item{id: %#v,length:%d}", self.id, self.length)
 }
 
 func (self *Item) Kind() Kind {

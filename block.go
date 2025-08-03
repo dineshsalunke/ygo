@@ -7,6 +7,8 @@ type Block interface {
 	Length() uint64
 	ID() *ID
 	Parent() SharedType
+	ClockLength() uint64
+	Splice(offset uint64, tx *Transaction) Block
 }
 
 type block struct {
@@ -20,4 +22,12 @@ func newBlock(id *ID, length uint64) *block {
 
 func (self *block) Length() uint64 {
 	return self.length
+}
+
+func (self *block) ClockLength() uint64 {
+	return self.id.clock + self.length
+}
+
+func (self *block) Splice(offset uint64, tx *Transaction) Block {
+	panic("not implemented")
 }

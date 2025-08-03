@@ -42,7 +42,8 @@ func (self *IdRanges) addIdRange(clock, length uint64) {
 	}
 }
 
-func (irs *IdRanges) squash() []*IdRange {
+// Sort the list if not already sorted and then return it
+func (irs *IdRanges) getIdRanges() []*IdRange {
 	irs.lastUsed = true
 	if !irs.sorted {
 		irs.sorted = true

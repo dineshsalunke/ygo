@@ -22,6 +22,12 @@ func (content *ItemContentDeleted) GetRef() Kind {
 	return BlockKindItemDeleted
 }
 
+func (content *ItemContentDeleted) Splice(offset uint64) ItemContent {
+	right := newItemContentDeleted(content.length - offset)
+	content.length = offset
+	return right
+}
+
 func init() {
 	Decoders[BlockKindItemDeleted] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
 		length, err := decoder.ReadLength()

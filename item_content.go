@@ -10,6 +10,7 @@ type ItemContent interface {
 	IsCountable() bool
 	Length() uint64
 	GetRef() Kind
+	Splice(offset uint64) ItemContent
 }
 
 func decodeItemContent(decoder UpdateDecoder, info Kind) (ItemContent, error) {

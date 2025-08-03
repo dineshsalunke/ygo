@@ -22,6 +22,14 @@ func (content *ItemContentAny) GetRef() Kind {
 	return BlockKindItemAny
 }
 
+func (content *ItemContentAny) Splice(offset uint64) ItemContent {
+	c := make([]any, uint64(len(content.contents)-int(offset)))
+	copy(c, content.contents[offset:])
+	content.contents = content.contents[:offset]
+	right := newItemContentAny(c)
+	return right
+}
+
 func init() {
 	Decoders[BlockKindItemAny] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
 		length, err := decoder.ReadLength()

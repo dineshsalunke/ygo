@@ -32,6 +32,11 @@ func (content *ItemContentType) GetRef() Kind {
 	return BlockKindItemMove
 }
 
+func (content *ItemContentType) Splice(offset uint64) ItemContent {
+	// This method is noop
+	return nil
+}
+
 func init() {
 	Decoders[BlockKindItemType] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
 		typeRef, err := decoder.ReadTypeRef()

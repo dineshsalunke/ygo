@@ -22,6 +22,12 @@ func (content *ItemContentString) GetRef() Kind {
 	return BlockKindItemMove
 }
 
+func (content *ItemContentString) Splice(offset uint64) ItemContent {
+	right := newItemContentString(content.str[offset:])
+	content.str = content.str[:offset]
+	return right
+}
+
 func init() {
 	Decoders[BlockKindItemString] = func(decoder UpdateDecoder, info Kind) (ItemContent, error) {
 		str, err := decoder.ReadVarString()

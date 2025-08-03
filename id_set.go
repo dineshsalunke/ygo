@@ -5,5 +5,8 @@ type IdSet struct {
 }
 
 func newIdSet() *IdSet {
-	return &IdSet{}
+	return &IdSet{
+		clients: make(map[uint64]*IdRanges),
+	}
 }
+

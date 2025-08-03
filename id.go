@@ -19,6 +19,6 @@ func NewID(client uint64, clock uint64) *ID {
 }
 
 // Implement the fmt Stringer interface
-func (id *ID) String() string {
+func (id *ID) GoString() string {
 	return fmt.Sprintf("ID{client:%d,clock:%d}", id.client, id.clock)
 }

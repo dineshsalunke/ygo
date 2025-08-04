@@ -63,7 +63,7 @@ func readStructSet(decoder UpdateDecoder, tx *Transaction) (*StructSet, error) {
 	return ss, nil
 }
 
-func mergeUpdates(updates [][]byte) ([]byte, error) {
+func mergeUpdatesV1(updates [][]byte) ([]byte, error) {
 	panic("not implemented")
 }
 
@@ -117,7 +117,7 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 					store.pendingStructs.missingState[client] = clock
 				}
 			}
-			update, err := mergeUpdates([][]byte{
+			update, err := mergeUpdatesV1([][]byte{
 				store.pendingStructs.update,
 				restStructs.update,
 			})
@@ -147,7 +147,7 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 		}
 
 		if restIdSetUpdate != nil && pendingIdSetUpdate != nil {
-			pendingDsUpdate, err := mergeUpdates([][]byte{restIdSetUpdate, pendingIdSetUpdate})
+			pendingDsUpdate, err := mergeUpdatesV1([][]byte{restIdSetUpdate, pendingIdSetUpdate})
 			if err != nil {
 				return err
 			}
@@ -165,14 +165,14 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 	if retry {
 		update := store.pendingStructs.update
 		store.pendingStructs = nil
-		if err := ApplyUpdateV2(tx.doc, update); err != nil {
+		if err := ApplyUpdateV1(tx.doc, update); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func ApplyUpdateV2(doc *Doc, update []byte) error {
+func ApplyUpdateV1(doc *Doc, update []byte) error {
 	tx := newTransaction(doc, TransactionWithLocal(false))
 	decoder := newUpdateDecoderV1(update)
 

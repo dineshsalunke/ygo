@@ -63,7 +63,12 @@ func readStructSet(decoder UpdateDecoder, tx *Transaction) (*StructSet, error) {
 	return ss, nil
 }
 
+func mergeUpdates(updates [][]byte) ([]byte, error) {
+	panic("not implemented")
+}
+
 func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
+	retry := false
 	store := tx.doc.store
 	// Read remote updates
 	remoteUpdates, err := readStructSet(decoder, tx)
@@ -71,7 +76,6 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 		return err
 	}
 
-	// TODO: find all local updates for remote clients
 	localState := newIdSet()
 	for remoteClientId := range remoteUpdates.clients {
 		localBlocks, has := store.clients[remoteClientId]
@@ -88,16 +92,83 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 		}
 	}
 
-	// TODO: remove all the overlapping updates of same remote and local clients
+	if err := remoteUpdates.excludeIdSet(localState); err != nil {
+		return err
+	}
 
-	// TODO: Integrate remote updates, and return udpates for which deps could not be resolved
-	// TODO: Check if we have pending updates to be merged, if any then merge else assign the missing deps update to pending updates
+	restStructs, err := store.IntegrateStructs(tx)
+	if err != nil {
+		return err
+	}
+	if store.pendingStructs != nil {
+		for client, clock := range store.pendingStructs.missingState {
+			_, remoteHasClient := remoteUpdates.clients[client]
+			clientClockLength := store.GetClientClockLength(client)
+			if remoteHasClient || clock < clientClockLength {
+				retry = true
+				break
+			}
+		}
 
-	// TODO: Read DeleteSet
-	// TODO: Apply DeleteSet, return the ones which couldn't be applied
-	// TODO: Check for pending DeleteSet and apply it, else if we have any DeleteSet which couldn't be applied from earlier step then make a note of them
+		if restStructs != nil {
+			for client, clock := range restStructs.missingState {
+				mclock, has := store.pendingStructs.missingState[client]
+				if has || mclock > clock {
+					store.pendingStructs.missingState[client] = clock
+				}
+			}
+			update, err := mergeUpdates([][]byte{
+				store.pendingStructs.update,
+				restStructs.update,
+			})
+			if err != nil {
+				return err
+			}
+			store.pendingStructs.update = update
+		}
+	} else {
+		store.pendingStructs = restStructs
+	}
 
-	// TODO: check if something couldn't be applied due to missing deps, if any then retry applying update
+	restIdSetUpdate, err := store.ApplyIdSet(decoder, tx)
+	if err != nil {
+		return err
+	}
+	if store.pendingIdSetUpdate != nil {
+		pendingDsDecoder := newUpdateDecoderV1(store.pendingIdSetUpdate)
+		// We only encode pending deletes, so lets get rid of the first 0
+		_, err := pendingDsDecoder.ReadVarUint()
+		if err != nil {
+			return err
+		}
+		pendingIdSetUpdate, err := store.ApplyIdSet(pendingDsDecoder, tx)
+		if err != nil {
+			return err
+		}
+
+		if restIdSetUpdate != nil && pendingIdSetUpdate != nil {
+			pendingDsUpdate, err := mergeUpdates([][]byte{restIdSetUpdate, pendingIdSetUpdate})
+			if err != nil {
+				return err
+			}
+			store.pendingIdSetUpdate = pendingDsUpdate
+		} else {
+			store.pendingIdSetUpdate = pendingIdSetUpdate
+			if restIdSetUpdate != nil {
+				store.pendingIdSetUpdate = restIdSetUpdate
+			}
+		}
+	} else {
+		store.pendingIdSetUpdate = restIdSetUpdate
+	}
+
+	if retry {
+		update := store.pendingStructs.update
+		store.pendingStructs = nil
+		if err := ApplyUpdateV2(tx.doc, update); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

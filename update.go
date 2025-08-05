@@ -182,3 +182,23 @@ func ApplyUpdateV1(doc *Doc, update []byte) error {
 
 	return tx.commitTransaction()
 }
+func readStateVector(decoder IdSetDecoder) (StateVector, error) {
+	ssLength, err := decoder.ReadVarUint()
+	if err != nil {
+		return nil, err
+	}
+	sv := make(StateVector, ssLength)
+	for range ssLength {
+		client, err := decoder.ReadVarUint()
+		if err != nil {
+			return nil, err
+		}
+		clock, err := decoder.ReadVarUint()
+		if err != nil {
+			return nil, err
+		}
+		sv[client] = clock
+	}
+	return sv, nil
+}
+

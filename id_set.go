@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 )
+
 type IdSet struct {
 	clients map[uint64]*IdRanges
 }
@@ -68,3 +69,65 @@ func (set *IdSet) delete(client, clock, length uint64) error {
 	return nil
 }
 
+func writeIdSet(idSet *IdSet, encoder IdSetEncoder) error {
+	clientIds := make([]uint64, len(idSet.clients))
+	slices.Sort(clientIds)
+	slices.Reverse(clientIds)
+
+	for _, client := range clientIds {
+		clientIdRanges := idSet.clients[client]
+		idRanges := clientIdRanges.getIdRanges()
+		encoder.ResetDsCurrVal()
+		if err := encoder.WriteVarUint(client); err != nil {
+			return err
+		}
+		if err := encoder.WriteVarUint(uint64(len(idRanges))); err != nil {
+			return err
+		}
+		for _, idRange := range idRanges {
+			if err := encoder.WriteDsClock(idRange.clock); err != nil {
+				return err
+			}
+			if err := encoder.WriteDsLength(idRange.length); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func readIdSet(decoder IdSetDecoder) (*IdSet, error) {
+	idSet := newIdSet()
+	numClients, err := decoder.ReadVarUint()
+	if err != nil {
+		return nil, err
+	}
+	for range numClients {
+		decoder.ResetDsCurrVal()
+		client, err := decoder.ReadVarUint()
+		if err != nil {
+			return nil, err
+		}
+		numOfDeletes, err := decoder.ReadVarUint()
+		if err != nil {
+			return nil, err
+		}
+		if numOfDeletes > 0 {
+			dsRanges := make([]*IdRange, numOfDeletes)
+			for range numOfDeletes {
+				clock, err := decoder.ReadDsClock()
+				if err != nil {
+					return nil, err
+				}
+				length, err := decoder.ReadDsLength()
+				if err != nil {
+					return nil, err
+				}
+				dsRanges = append(dsRanges, newIdRange(clock, length))
+			}
+			idSet.clients[client] = newIdRanges(dsRanges)
+		}
+	}
+
+	return idSet, nil
+}

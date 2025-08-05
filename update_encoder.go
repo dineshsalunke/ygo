@@ -1,19 +1,9 @@
 package ygo
 
-type UpdateEncoder interface {
+type IdSetEncoder interface {
 	ResetDsCurrVal()
 	WriteDsClock(length uint64) error
 	WriteDsLength(length uint64) error
-	WriteLeftID(id *ID) error
-	WriteRightID(id *ID) error
-	WriteClient(clientId uint64) error
-	WriteInfo(info byte) error
-	WriteParentInfo(hasParentInfo bool) error
-	WriteTypeRef(ref byte) error
-	WriteLength(length uint64) error
-	WriteAny(val any) error
-	WriteJson(val any) error
-	WriteKey(key string) error
 
 	//
 	WriteUint8(val byte) error
@@ -26,4 +16,19 @@ type UpdateEncoder interface {
 	WriteVarString(val string) error
 	WriteFloat32(val float32) error
 	WriteFloat64(val float64) error
+	Bytes() []byte
+}
+
+type UpdateEncoder interface {
+	IdSetEncoder
+	WriteLeftID(id *ID) error
+	WriteRightID(id *ID) error
+	WriteClient(clientId uint64) error
+	WriteInfo(info byte) error
+	WriteParentInfo(hasParentInfo bool) error
+	WriteTypeRef(ref byte) error
+	WriteLength(length uint64) error
+	WriteAny(val any) error
+	WriteJson(val any) error
+	WriteKey(key string) error
 }

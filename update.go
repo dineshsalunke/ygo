@@ -182,6 +182,11 @@ func ApplyUpdateV1(doc *Doc, update []byte) error {
 
 	return tx.commitTransaction()
 }
+
+func diffUpdateV1(update []byte, otherUpdate []byte) ([]byte, error) {
+	panic("not implemented")
+}
+
 func readStateVector(decoder IdSetDecoder) (StateVector, error) {
 	ssLength, err := decoder.ReadVarUint()
 	if err != nil {
@@ -202,3 +207,35 @@ func readStateVector(decoder IdSetDecoder) (StateVector, error) {
 	return sv, nil
 }
 
+func writeStateAsUpdate(encoder UpdateEncoder, doc *Doc, targetVector StateVector) error {
+	panic("not implemented")
+}
+
+func encodeStateAsUpate(doc *Doc, encodedTargetStateVector []byte, encoder UpdateEncoder) ([]byte, error) {
+	decoder := newIdSetDecoderV1(encodedTargetStateVector)
+	targetStateVector, err := readStateVector(decoder)
+	if err != nil {
+		return nil, err
+	}
+	if err := writeStateAsUpdate(encoder, doc, targetStateVector); err != nil {
+		return nil, err
+	}
+	updates := make([][]byte, 1)
+	updates = append(updates, encoder.Bytes())
+	if doc.store.pendingIdSetUpdate != nil {
+		updates = append(updates, doc.store.pendingIdSetUpdate)
+	}
+	if doc.store.pendingStructs != nil {
+		diffedUpdates, err := diffUpdateV1(doc.store.pendingIdSetUpdate, encodedTargetStateVector)
+		if err != nil {
+			return nil, err
+		}
+		updates = append(updates, diffedUpdates)
+	}
+
+	if len(updates) > 1 {
+		return mergeUpdatesV1(updates)
+	}
+
+	return updates[0], nil
+}

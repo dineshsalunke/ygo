@@ -1,31 +1,41 @@
 package ygo
 
-type UpdateDecoderV1 struct {
+type IdSetDecoderV1 struct {
 	*BinaryDecoder
+}
+
+func (dec *IdSetDecoderV1) ResetDsCurrVal() {
+	// This is a noop
+}
+
+func (dec *IdSetDecoderV1) ReadDsClock() (uint64, error) {
+	b, err := dec.ReadVarUint()
+	return b, err
+}
+
+func (dec *IdSetDecoderV1) ReadDsLength() (uint64, error) {
+	b, err := dec.ReadVarUint()
+	return b, err
+}
+
+func newIdSetDecoderV1(buf []byte) *IdSetDecoderV1 {
+	return &IdSetDecoderV1{
+		BinaryDecoder: newDecoder(buf),
+	}
+}
+
+type UpdateDecoderV1 struct {
+	*IdSetDecoderV1
 }
 
 func newUpdateDecoderV1(buf []byte) *UpdateDecoderV1 {
 	return &UpdateDecoderV1{
-		BinaryDecoder: newDecoder(buf),
+		IdSetDecoderV1: newIdSetDecoderV1(buf),
 	}
 }
 
 func NewUpdateDecoderV1(buf []byte) *UpdateDecoderV1 {
 	return newUpdateDecoderV1(buf)
-}
-
-func (dec *UpdateDecoderV1) ResetDsCurrVal() {
-	// This is a noop
-}
-
-func (dec *UpdateDecoderV1) ReadDsClock() (uint64, error) {
-	b, err := dec.ReadVarUint()
-	return b, err
-}
-
-func (dec *UpdateDecoderV1) ReadDsLength() (uint64, error) {
-	b, err := dec.ReadVarUint()
-	return b, err
 }
 
 func (dec *UpdateDecoderV1) ReadLeftID() (*ID, error) {

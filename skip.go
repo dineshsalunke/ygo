@@ -31,3 +31,13 @@ func (self *Skip) Length() uint64 {
 func (self *Skip) ID() *ID {
 	return self.id
 }
+
+func (self *Skip) Write(encoder UpdateEncoder, offset uint64, offsetKind uint64) error {
+	if err := encoder.WriteInfo(SkipTypeRef); err != nil {
+		return err
+	}
+	if err := encoder.WriteVarUint(self.length - offset); err != nil {
+		return err
+	}
+	return nil
+}

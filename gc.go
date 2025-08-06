@@ -23,3 +23,13 @@ func (self *GC) Length() uint64 {
 func (self *GC) ID() *ID {
 	return self.id
 }
+
+func (self *GC) Write(encoder UpdateEncoder, offset uint64, offsetLength uint64) error {
+	if err := encoder.WriteInfo(GCTypeRef); err != nil {
+		return err
+	}
+	if err := encoder.WriteLength(self.length - offset - offsetLength); err != nil {
+		return err
+	}
+	return nil
+}

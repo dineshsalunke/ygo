@@ -32,6 +32,10 @@ func (self *Skip) ID() *ID {
 	return self.id
 }
 
+func (self *Skip) GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error) {
+	panic("not implemented")
+}
+
 func (self *Skip) Write(encoder UpdateEncoder, offset uint64, offsetKind uint64) error {
 	if err := encoder.WriteInfo(SkipTypeRef); err != nil {
 		return err

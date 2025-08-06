@@ -11,6 +11,7 @@ type ItemContent interface {
 	Length() uint64
 	GetRef() Kind
 	Splice(offset uint64) ItemContent
+	Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error
 }
 
 func decodeItemContent(decoder UpdateDecoder, info Kind) (ItemContent, error) {

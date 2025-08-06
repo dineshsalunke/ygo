@@ -34,3 +34,12 @@ func (self *block) ClockLength() uint64 {
 func (self *block) Splice(offset uint64, tx *Transaction) Block {
 	panic("not implemented")
 }
+
+func (self *block) Integrate(tx *Transaction, offset uint64) error {
+	panic("not implemented")
+}
+
+func (self *block) GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error) {
+	panic("not implemented")
+}
+

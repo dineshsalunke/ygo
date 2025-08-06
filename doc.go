@@ -1,5 +1,7 @@
 package ygo
 
+import "reflect"
+
 type Doc struct {
 	store *StructStore
 	share map[string]SharedType
@@ -28,4 +30,13 @@ func (doc *Doc) get(key string) (SharedType, error) {
 	}
 	doc.share[key] = t
 	return t, nil
+}
+
+func (doc *Doc) GetItemKey(item any) (string, bool) {
+	for key, t := range doc.share {
+		if reflect.TypeOf(t) == reflect.TypeOf(item) {
+			return key, true
+		}
+	}
+	return "", false
 }

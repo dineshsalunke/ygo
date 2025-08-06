@@ -3,7 +3,7 @@ package ygo
 import "fmt"
 
 type StructRange struct {
-	i    uint64
+	i    int
 	refs []Block
 }
 

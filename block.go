@@ -9,6 +9,9 @@ type Block interface {
 	Parent() SharedType
 	ClockLength() uint64
 	Splice(offset uint64, tx *Transaction) Block
+	GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error)
+	Integrate(tx *Transaction, offset uint64) error
+	Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error
 }
 
 type block struct {

@@ -1,5 +1,10 @@
 package ygo
 
+import (
+	"cmp"
+	"slices"
+)
+
 type Kind byte
 
 type Block interface {
@@ -43,3 +48,11 @@ func (self *block) GetMissing(tx *Transaction, store *StructStore) (uint64, bool
 	panic("not implemented")
 }
 
+func binarySearchClockIndex(blocks []Block, clock uint64) (int, bool) {
+	return slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
+		if b.ID().clock <= c && c < b.ClockLength() {
+			return 0
+		}
+		return cmp.Compare(b.ClockLength(), c)
+	})
+}

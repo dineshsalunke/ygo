@@ -20,3 +20,8 @@ const (
 	BlockKindSkip        Kind = 10
 	BlockKindItemMove    Kind = 11
 )
+
+const (
+	SkipTypeRef byte = 10
+	GCTypeRef   byte = 0
+)

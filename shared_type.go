@@ -3,6 +3,8 @@ package ygo
 type SharedType interface {
 	Parent() SharedType
 	Integrate(doc *Doc, item Block) error
+	ID() *ID
+	Doc() *Doc
 }
 
 type BaseSharedType struct {
@@ -11,6 +13,14 @@ type BaseSharedType struct {
 	start  Block
 	doc    *Doc
 	length uint64
+}
+
+func (t *BaseSharedType) ID() *ID {
+	return t.item.ID()
+}
+
+func (t *BaseSharedType) Doc() *Doc {
+	return t.doc
 }
 
 func (t *BaseSharedType) Parent() SharedType {

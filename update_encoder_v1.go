@@ -88,6 +88,13 @@ func (enc *UpdateEncoderV1) WriteKey(key string) error {
 	return enc.WriteVarString(key)
 }
 
+func (enc *UpdateEncoderV1) WriteString(value string) error {
+	if err := enc.WriteVarString(value); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (enc *UpdateEncoderV1) Bytes() []byte {
 	return enc.BinaryEncoder.Bytes()
 }

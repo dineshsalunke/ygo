@@ -14,3 +14,7 @@ func newYText() *YText {
 		pending:        make([]pendingOperations, 0),
 	}
 }
+
+func (ymap *YText) Write(encoder UpdateEncoder) error {
+	return encoder.WriteTypeRef(2)
+}

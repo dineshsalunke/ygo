@@ -22,3 +22,7 @@ func NewYMap() *YMap {
 func NewYMapWithEntries(entries map[string]any) *YMap {
 	return newYMap(entries)
 }
+
+func (ymap *YMap) Write(encoder UpdateEncoder) error {
+	return encoder.WriteTypeRef(1)
+}

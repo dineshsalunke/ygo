@@ -4,6 +4,10 @@ type ItemContentDeleted struct {
 	length uint64
 }
 
+func (content *ItemContentDeleted) Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error {
+	panic("not implemented") // TODO: Implement
+}
+
 func newItemContentDeleted(length uint64) *ItemContentDeleted {
 	return &ItemContentDeleted{
 		length: length,

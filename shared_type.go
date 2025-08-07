@@ -5,6 +5,7 @@ type SharedType interface {
 	Integrate(doc *Doc, item Block) error
 	ID() *ID
 	Doc() *Doc
+	Write(encoder UpdateEncoder) error
 }
 
 type BaseSharedType struct {
@@ -34,4 +35,8 @@ func (t *BaseSharedType) Integrate(doc *Doc, item Block) error {
 	t.item = item
 	t.doc = doc
 	return nil
+}
+
+func (t *BaseSharedType) Write(encoder UpdateEncoder) error {
+	panic("not implemented")
 }

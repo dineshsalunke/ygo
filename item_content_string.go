@@ -4,6 +4,17 @@ type ItemContentString struct {
 	str string
 }
 
+func (content *ItemContentString) Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error {
+	str := content.str[offset : len(content.str)-int(offsetEnd)]
+	if offset == 0 && offsetEnd == 0 {
+		str = content.str[:]
+	}
+	if err := encoder.WriteString(str); err != nil {
+		return err
+	}
+	return nil
+}
+
 func newItemContentString(str string) *ItemContentString {
 	return &ItemContentString{
 		str: str,

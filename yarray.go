@@ -13,3 +13,7 @@ func newYArray() *YArray {
 		premlimContent: make([]any, 0),
 	}
 }
+
+func (ymap *YArray) Write(encoder UpdateEncoder) error {
+	return encoder.WriteTypeRef(0)
+}

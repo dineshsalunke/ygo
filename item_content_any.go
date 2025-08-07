@@ -4,6 +4,21 @@ type ItemContentAny struct {
 	contents []any
 }
 
+func (content *ItemContentAny) Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error {
+	end := uint64(len(content.contents)) - offset
+	if err := encoder.WriteLength(end - offset); err != nil {
+		return err
+	}
+	for i := offset; i < end; i++ {
+		c := content.contents[i]
+		if err := encoder.WriteAny(c); err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
 func newItemContentAny(contents []any) *ItemContentAny {
 	return &ItemContentAny{
 		contents: contents,

@@ -20,6 +20,10 @@ func newItemContentType(sharedType SharedType) *ItemContentType {
 	}
 }
 
+func (content *ItemContentType) Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error {
+	return content.sharedType.Write(encoder)
+}
+
 func (content *ItemContentType) Length() uint64 {
 	return 1
 }

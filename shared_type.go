@@ -2,10 +2,13 @@ package ygo
 
 type SharedType interface {
 	Parent() SharedType
-	Integrate(doc *Doc, item Block) error
+	Integrate(doc *Doc, item *Item) error
 	ID() *ID
 	Doc() *Doc
 	Write(encoder UpdateEncoder) error
+	GetBlock(key string) Block
+	SetBlock(key string, block Block)
+	Start() Block
 }
 
 type BaseSharedType struct {
@@ -14,6 +17,10 @@ type BaseSharedType struct {
 	start  Block
 	doc    *Doc
 	length uint64
+}
+
+func (t *BaseSharedType) Start() Block {
+	return t.start
 }
 
 func (t *BaseSharedType) ID() *ID {
@@ -31,7 +38,15 @@ func (t *BaseSharedType) Parent() SharedType {
 	return nil
 }
 
-func (t *BaseSharedType) Integrate(doc *Doc, item Block) error {
+func (t *BaseSharedType) GetBlock(key string) Block {
+	return t.blocks[key]
+}
+
+func (t *BaseSharedType) SetBlock(key string, block Block) {
+	t.blocks[key] = block
+}
+
+func (t *BaseSharedType) Integrate(doc *Doc, item *Item) error {
 	t.item = item
 	t.doc = doc
 	return nil

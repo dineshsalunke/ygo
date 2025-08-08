@@ -14,6 +14,10 @@ func newYArray() *YArray {
 	}
 }
 
+func NewYArray() *YArray {
+	return newYArray()
+}
+
 func (ymap *YArray) Write(encoder UpdateEncoder) error {
 	return encoder.WriteTypeRef(0)
 }

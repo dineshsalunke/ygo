@@ -15,6 +15,10 @@ func newYText() *YText {
 	}
 }
 
+func NewYText() *YText {
+	return newYText()
+}
+
 func (ymap *YText) Write(encoder UpdateEncoder) error {
 	return encoder.WriteTypeRef(2)
 }

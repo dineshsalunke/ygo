@@ -23,6 +23,7 @@ type Block interface {
 	ID() *ID
 	Parent() SharedType
 	LastID() *ID
+	Splice(diff uint64) (Block, error)
 }
 
 type BaseBlockType struct {
@@ -79,7 +80,11 @@ func (self *BaseBlockType) GetMissing(tx *Transaction, store *StructStore) (uint
 }
 
 func (self *BaseBlockType) Split(tx *Transaction, diff uint64) (Block, error) {
-	panic("not implemented") // TODO: Implement
+	return self.Splice(diff)
+}
+
+func (self *BaseBlockType) Splice(diff uint64) (Block, error) {
+	panic("not implemented")
 }
 
 func (self *BaseBlockType) Parent() SharedType {

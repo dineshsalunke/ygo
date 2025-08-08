@@ -33,18 +33,21 @@ func (ss *StructSet) addRange(client uint64, refs []Block) {
 // TODO: Handle the case where element not found
 func findIndexCleanStart(tx *Transaction, blocks []Block, clock uint64) (uint64, error) {
 	index, exists := slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
-		if b.ID().clock <= c && c < b.ClockLength() {
+		if b.ContainsClock(c) {
 			return 0
 		}
-		return cmp.Compare(b.ClockLength(), c)
+		return cmp.Compare(b.ClockEnd(), c)
 	})
 	if !exists {
 		return 0, fmt.Errorf("no block found for clock %d", clock)
 	}
 
 	block := blocks[index]
-	if block.ID().clock < clock {
-		nBlock := block.Splice(clock-block.ID().clock, tx)
+	if block.ClockStart() < clock {
+		nBlock, err := block.Split(tx, clock-block.ClockStart())
+		if err != nil {
+			return 0, err
+		}
 		blocks = slices.Insert(blocks, index+1, nBlock)
 		return uint64(index + 1), nil
 	}
@@ -65,7 +68,7 @@ func (ss *StructSet) excludeIdSet(set *IdSet) error {
 				endIndex := uint64(0)
 
 				// No need to exclude range if its clock is greater than highest block in store
-				if excludeRange.clock >= lastBlock.ClockLength() {
+				if excludeRange.clock >= lastBlock.ClockEnd() {
 					continue
 				}
 				// find first id range whose clock is greater than excludeRange clock
@@ -80,7 +83,7 @@ func (ss *StructSet) excludeIdSet(set *IdSet) error {
 				if excludeRange.clock+excludeRange.length <= firstBlock.ID().clock {
 					continue
 				}
-				if excludeRange.end() < lastBlock.ClockLength() {
+				if excludeRange.end() < lastBlock.ClockEnd() {
 					endIndex, err = findIndexCleanStart(nil, structRange.refs, excludeRange.end())
 					if err != nil {
 						return err

@@ -184,7 +184,15 @@ func ApplyUpdateV1(doc *Doc, update []byte) error {
 }
 
 func diffUpdateV1(update []byte, otherUpdate []byte) ([]byte, error) {
+	_, err := decodeStateVector(update)
+	if err != nil {
+		return nil, err
+	}
 	panic("not implemented")
+}
+
+func decodeStateVector(buf []byte) (StateVector, error) {
+	return readStateVector(newIdSetDecoderV1(buf))
 }
 
 func readStateVector(decoder IdSetDecoder) (StateVector, error) {

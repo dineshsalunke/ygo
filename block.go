@@ -8,51 +8,93 @@ import (
 type Kind byte
 
 type Block interface {
-	Kind() Kind
+	Deleted() bool
+	MergeWith(right Block) error
+	Write(encoder UpdateEncoder, offset uint64, encodingRef byte) error
+	Integrate(tx *Transaction, offset uint64) error
+	GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error)
+	ClockStart() uint64
+	ClockEnd() uint64
+	ClockRange() (uint64, uint64)
+	Client() uint64
 	Length() uint64
+	ContainsClock(clock uint64) bool
+	Split(tx *Transaction, diff uint64) (Block, error)
 	ID() *ID
 	Parent() SharedType
-	ClockLength() uint64
-	Splice(offset uint64, tx *Transaction) Block
-	GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error)
-	Integrate(tx *Transaction, offset uint64) error
-	Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error
+	LastID() *ID
 }
 
-type block struct {
+type BaseBlockType struct {
 	id     *ID
 	length uint64
 }
 
-func newBlock(id *ID, length uint64) *block {
-	return &block{id: id, length: length}
+func (self *BaseBlockType) ClockStart() uint64 {
+	return self.id.clock
 }
 
-func (self *block) Length() uint64 {
+func (self *BaseBlockType) ClockEnd() uint64 {
+	return self.id.clock + self.length - 1
+}
+
+func (self *BaseBlockType) ClockRange() (uint64, uint64) {
+	return self.ClockStart(), self.ClockEnd()
+}
+
+func (self *BaseBlockType) Client() uint64 {
+	return self.id.client
+}
+
+func (self *BaseBlockType) Length() uint64 {
 	return self.length
 }
 
-func (self *block) ClockLength() uint64 {
-	return self.id.clock + self.length
+func (self *BaseBlockType) ContainsClock(clock uint64) bool {
+	return clock >= self.id.clock && clock <= self.ClockEnd()
 }
 
-func (self *block) Splice(offset uint64, tx *Transaction) Block {
-	panic("not implemented")
+func (self *BaseBlockType) ID() *ID {
+	return self.id
 }
 
-func (self *block) Integrate(tx *Transaction, offset uint64) error {
-	panic("not implemented")
+func (self *BaseBlockType) Deleted() bool {
+	panic("not implemented") // TODO: Implement
 }
 
-func (self *block) GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error) {
-	panic("not implemented")
+func (self *BaseBlockType) MergeWith(right Block) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (self *BaseBlockType) Write(encoder UpdateEncoder, offset uint64, encodingRef byte) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (self *BaseBlockType) Integrate(tx *Transaction, offset uint64) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (self *BaseBlockType) GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error) {
+	panic("not implemented") // TODO: Implement
+}
+
+func (self *BaseBlockType) Split(tx *Transaction, diff uint64) (Block, error) {
+	panic("not implemented") // TODO: Implement
+}
+
+func (self *BaseBlockType) Parent() SharedType {
+	panic("not implemented") // TODO: Implement
+}
+
+func (self *BaseBlockType) LastID() *ID {
+	panic("not implemented") // TODO: Implement
 }
 
 func binarySearchClockIndex(blocks []Block, clock uint64) (int, bool) {
 	return slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
-		if b.ID().clock <= c && c < b.ClockLength() {
+		if b.ContainsClock(c) {
 			return 0
 		}
-		return cmp.Compare(b.ClockLength(), c)
+		return cmp.Compare(b.ClockEnd(), c)
 	})
 }

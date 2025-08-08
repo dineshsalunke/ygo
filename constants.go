@@ -25,3 +25,11 @@ const (
 	SkipTypeRef byte = 10
 	GCTypeRef   byte = 0
 )
+
+const (
+	ItemFlagLinked    ItemFlags = 0b0001_0000_0000
+	ItemFlagMarked    ItemFlags = 0b0000_1000
+	ItemFlagDeleted   ItemFlags = 0b0000_0100
+	ItemFlagCountable ItemFlags = 0b0000_0010
+	ItemFlagKeep      ItemFlags = 0b0000_0001
+)

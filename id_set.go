@@ -1,6 +1,7 @@
 package ygo
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"strings"
@@ -67,6 +68,28 @@ func (set *IdSet) delete(client, clock, length uint64) error {
 		}
 	}
 	return nil
+}
+
+func findIndexInIdRanges(idRange []*IdRange, clock uint64) (int, bool) {
+	return slices.BinarySearchFunc(idRange, clock, func(b *IdRange, c uint64) int {
+		if b.clock <= c && c < b.end() {
+			return 0
+		}
+		return cmp.Compare(b.end(), c)
+	})
+}
+
+func (idSet *IdSet) Has(client, clock uint64) bool {
+	idrange, ok := idSet.clients[client]
+	if ok {
+		_, has := findIndexInIdRanges(idrange.getIdRanges(), clock)
+		return has
+	}
+	return false
+}
+
+func (idSet *IdSet) HasID(id *ID) bool {
+	return idSet.Has(id.client, id.clock)
 }
 
 func writeIdSet(idSet *IdSet, encoder IdSetEncoder) error {

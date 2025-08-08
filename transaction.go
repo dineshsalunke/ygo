@@ -46,6 +46,10 @@ func newTransaction(doc *Doc, opts ...TxOption) *Transaction {
 	return tx
 }
 
+func (tx *Transaction) Store() *StructStore {
+	return tx.doc.store
+}
+
 func (tx *Transaction) commitTransaction() error {
 	panic("not implemented")
 }

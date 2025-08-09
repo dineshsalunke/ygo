@@ -9,7 +9,7 @@ type YArray struct {
 
 func newYArray() *YArray {
 	return &YArray{
-		BaseSharedType: &BaseSharedType{},
+		BaseSharedType: newBaseSharedType(),
 		premlimContent: make([]any, 0),
 	}
 }

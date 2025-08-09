@@ -9,7 +9,7 @@ type YMap struct {
 
 func newYMap(prelim map[string]any) *YMap {
 	return &YMap{
-		BaseSharedType: &BaseSharedType{},
+		BaseSharedType: newBaseSharedType(),
 		prelimContent:  prelim,
 	}
 }

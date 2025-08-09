@@ -10,7 +10,7 @@ type YText struct {
 
 func newYText() *YText {
 	return &YText{
-		BaseSharedType: &BaseSharedType{},
+		BaseSharedType: newBaseSharedType(),
 		pending:        make([]pendingOperations, 0),
 	}
 }

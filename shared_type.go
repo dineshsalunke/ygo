@@ -9,49 +9,77 @@ type SharedType interface {
 	GetBlock(key string) Block
 	SetBlock(key string, block Block)
 	Start() Block
+	SetStart(block Block)
+	Block() Block
+	Length() uint64
+	SetLength(length uint64)
 }
 
 type BaseSharedType struct {
-	item   Block
+	block  Block
 	blocks map[string]Block
 	start  Block
 	doc    *Doc
 	length uint64
 }
 
-func (t *BaseSharedType) Start() Block {
-	return t.start
+func newBaseSharedType() *BaseSharedType {
+	return &BaseSharedType{
+		block:  nil,
+		start:  nil,
+		blocks: make(map[string]Block),
+	}
 }
 
-func (t *BaseSharedType) ID() *ID {
-	return t.item.ID()
+func (self *BaseSharedType) SetLength(length uint64) {
+	self.length = length
 }
 
-func (t *BaseSharedType) Doc() *Doc {
-	return t.doc
+func (self *BaseSharedType) Length() uint64 {
+	return self.length
 }
 
-func (t *BaseSharedType) Parent() SharedType {
-	if t.item != nil {
-		return t.item.Parent()
+func (self *BaseSharedType) Block() Block {
+	return self.block
+}
+
+func (self *BaseSharedType) SetStart(block Block) {
+	self.start = block
+}
+
+func (self *BaseSharedType) Start() Block {
+	return self.start
+}
+
+func (self *BaseSharedType) ID() *ID {
+	return self.block.ID()
+}
+
+func (self *BaseSharedType) Doc() *Doc {
+	return self.doc
+}
+
+func (self *BaseSharedType) Parent() SharedType {
+	if self.block != nil {
+		return self.block.Parent()
 	}
 	return nil
 }
 
-func (t *BaseSharedType) GetBlock(key string) Block {
-	return t.blocks[key]
+func (self *BaseSharedType) GetBlock(key string) Block {
+	return self.blocks[key]
 }
 
-func (t *BaseSharedType) SetBlock(key string, block Block) {
-	t.blocks[key] = block
+func (self *BaseSharedType) SetBlock(key string, block Block) {
+	self.blocks[key] = block
 }
 
-func (t *BaseSharedType) Integrate(doc *Doc, item *Item) error {
-	t.item = item
-	t.doc = doc
+func (self *BaseSharedType) Integrate(doc *Doc, item *Item) error {
+	self.block = item
+	self.doc = doc
 	return nil
 }
 
-func (t *BaseSharedType) Write(encoder UpdateEncoder) error {
+func (self *BaseSharedType) Write(encoder UpdateEncoder) error {
 	panic("not implemented")
 }

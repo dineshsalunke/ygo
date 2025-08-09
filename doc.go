@@ -1,6 +1,8 @@
 package ygo
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type Doc struct {
 	store *StructStore
@@ -24,7 +26,7 @@ func (doc *Doc) get(key string) (SharedType, error) {
 		return t, nil
 	}
 
-	t = &BaseSharedType{}
+	t = newBaseSharedType()
 	if err := t.Integrate(doc, nil); err != nil {
 		return nil, err
 	}

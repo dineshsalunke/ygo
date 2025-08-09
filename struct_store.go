@@ -23,6 +23,22 @@ func newStructStore() *StructStore {
 
 func (ss *StructStore) IntegrateStructs(tx *Transaction) (*PendingStructs, error) {
 	panic("not implemented")
+func (ss *StructStore) GetStateVector() StateVector {
+	cl := len(ss.clients)
+	sl := len(ss.skips.clients)
+	sm := make(StateVector, cl+sl)
+	for client, blocks := range ss.clients {
+		block := blocks[len(blocks)-1]
+		sm[client] = block.ClockEnd()
+	}
+
+	for client, block := range ss.skips.clients {
+		r := block.getIdRanges()
+		if len(r) > 0 {
+			sm[client] = r[0].clock
+		}
+	}
+	return sm
 }
 
 func (ss *StructStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byte, error) {

@@ -126,3 +126,15 @@ func (ss *StructStore) GetItemCleanEnd(tx *Transaction, id *ID) (Block, error) {
 	return block, nil
 }
 
+func (ss *StructStore) GetBlock(id *ID) Block {
+	block, _, _ := ss.BinarySearchBlock(id)
+	return block
+}
+
+func (ss *StructStore) GetItem(id *ID) *Item {
+	block := ss.GetBlock(id)
+	if block != nil {
+		return block.(*Item)
+	}
+	return nil
+}

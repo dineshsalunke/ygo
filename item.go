@@ -3,16 +3,16 @@ package ygo
 import "fmt"
 
 type Item struct {
-	*block
-	origin       *ID
-	left         Block
-	right_origin *ID
-	right        Block
-	parent       any
-	parent_sub   string
-	red_one      Block
-	content      ItemContent
-	info         byte
+	*BaseBlockType
+	origin      *ID
+	left        Block
+	rightOrigin *ID
+	right       Block
+	parent      any
+	parentSub   string
+	redOne      *ID
+	content     ItemContent
+	info        uint16
 }
 
 func (self *Item) GoString() string {

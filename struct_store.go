@@ -1,5 +1,6 @@
 package ygo
 
+	"slices"
 type PendingStructs struct {
 	missingState StateVector
 	update       []byte
@@ -46,11 +47,12 @@ func (ss *StructStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byt
 }
 
 // get client clock length
-func (ss *StructStore) GetClientClockLength(client uint64) uint64 {
+func (ss *StructStore) GetClientClockEnd(client uint64) uint64 {
 	blocks, has := ss.clients[client]
 	if !has || len(blocks) == 0 {
 		return 0
 	}
 	lastBlock := blocks[len(blocks)-1]
-	return lastBlock.ClockLength()
+	return lastBlock.ClockEnd() + 1
 }
+

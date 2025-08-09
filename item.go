@@ -17,10 +17,30 @@ type Item struct {
 
 func (self *Item) GoString() string {
 	return fmt.Sprintf("Item{id: %#v,length:%d}", self.id, self.length)
+type ItemOption func(item *Item)
+
+func WithContent(content ItemContent) ItemOption {
+	return func(item *Item) {
+		item.content = content
+		item.length = content.Length()
+		if content.IsCountable() {
+			item.SetCountable()
+		}
+	}
 }
 
-func (self *Item) Kind() Kind {
-	return Kind(self.info & 31)
+func newItem(id *ID, opts ...ItemOption) *Item {
+	item := &Item{
+		BaseBlockType: &BaseBlockType{
+			id:     id,
+			length: 0,
+		},
+		info: 0,
+	}
+	for _, opt := range opts {
+		opt(item)
+	}
+	return item
 }
 
 func (self *Item) Length() uint64 {

@@ -82,7 +82,7 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 		if has {
 			// Assume all the local updates are contigous and insert the remote updates at last
 			lastBlock := localBlocks[len(localBlocks)-1]
-			localState.add(remoteClientId, 0, lastBlock.ClockLength())
+			localState.add(remoteClientId, 0, lastBlock.ClockEnd())
 			idRanges, ok := store.skips.clients[remoteClientId]
 			if ok {
 				for _, idRange := range idRanges.getIdRanges() {
@@ -103,7 +103,7 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 	if store.pendingStructs != nil {
 		for client, clock := range store.pendingStructs.missingState {
 			_, remoteHasClient := remoteBlockSet.clients[client]
-			clientClockLength := store.GetClientClockLength(client)
+			clientClockLength := store.GetClientClockEnd(client)
 			if remoteHasClient || clock < clientClockLength {
 				retry = true
 				break

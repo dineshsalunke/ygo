@@ -28,6 +28,44 @@ func newStructStore() *StructStore {
 
 func (ss *StructStore) IntegrateStructs(tx *Transaction) (*PendingStructs, error) {
 	panic("not implemented")
+func writeClientsBlocks(encoder UpdateEncoder, ss *StructStore, sv StateVector) error {
+	sm := make(StateVector, 0)
+	for client, clock := range sv {
+		cl := ss.GetClientClockEnd(client)
+		if cl > clock {
+			sm[client] = clock
+		}
+	}
+	for client := range ss.GetStateVector() {
+		_, has := sv[client]
+		if !has {
+			sm[client] = 0
+		}
+	}
+	clientIds := make([]uint64, len(sm))
+	for client := range sm {
+		clientIds = append(clientIds, client)
+	}
+	slices.SortFunc(clientIds, func(a, b uint64) int {
+		return cmp.Compare(b, a)
+	})
+
+	for _, client := range clientIds {
+		clock := sm[client]
+		blocks, has := ss.clients[client]
+		if has && len(blocks) > 0 {
+			lastBlock := blocks[len(blocks)-1]
+			if err := writeBlocks(encoder, blocks, client, []*IdRange{
+				{clock: clock, length: lastBlock.ClockEnd() - clock},
+			}); err != nil {
+				return err
+			}
+		}
+
+	}
+	return nil
+}
+
 func (ss *StructStore) GetStateVector() StateVector {
 	cl := len(ss.clients)
 	sl := len(ss.skips.clients)

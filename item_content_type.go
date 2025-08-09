@@ -33,7 +33,7 @@ func (content *ItemContentType) IsCountable() bool {
 }
 
 func (content *ItemContentType) GetRef() Kind {
-	return BlockKindItemMove
+	return BlockKindItemType
 }
 
 func (content *ItemContentType) Splice(offset uint64) ItemContent {

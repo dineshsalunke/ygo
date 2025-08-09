@@ -1,7 +1,6 @@
 package ygo
 
 import (
-	"cmp"
 	"fmt"
 	"slices"
 )
@@ -28,31 +27,6 @@ func (ss *StructSet) addRange(client uint64, refs []Block) {
 	ss.clients[client] = &StructRange{
 		refs: refs,
 	}
-}
-
-// TODO: Handle the case where element not found
-func findIndexCleanStart(tx *Transaction, blocks []Block, clock uint64) (uint64, error) {
-	index, exists := slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
-		if b.ContainsClock(c) {
-			return 0
-		}
-		return cmp.Compare(b.ClockEnd(), c)
-	})
-	if !exists {
-		return 0, fmt.Errorf("no block found for clock %d", clock)
-	}
-
-	block := blocks[index]
-	if block.ClockStart() < clock {
-		nBlock, err := block.Split(tx, clock-block.ClockStart())
-		if err != nil {
-			return 0, err
-		}
-		blocks = slices.Insert(blocks, index+1, nBlock)
-		return uint64(index + 1), nil
-	}
-
-	return uint64(index), nil
 }
 
 func (ss *StructSet) excludeIdSet(set *IdSet) error {

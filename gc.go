@@ -13,6 +13,10 @@ func newGC(id *ID, length uint64) *GC {
 	}
 }
 
+func (self *GC) Deleted() bool {
+	return true
+}
+
 func (self *GC) Splice(diff uint64) (Block, error) {
 	gc := newGC(newID(self.id.client, self.id.clock+diff), self.length-diff)
 	gc.length = diff

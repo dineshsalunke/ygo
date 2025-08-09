@@ -6,7 +6,7 @@ type PendingStructs struct {
 }
 
 type StructStore struct {
-	clients            map[uint64][]Block
+	clients            map[uint64][]Block // TODO: extend this into custom type and slice of block so we could add binary search funcs
 	skips              *IdSet
 	pendingStructs     *PendingStructs
 	pendingIdSetUpdate []byte

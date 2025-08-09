@@ -9,6 +9,7 @@ type Kind byte
 
 type Block interface {
 	Deleted() bool
+	Delete(tx *Transaction) error
 	MergeWith(right Block) error
 	Write(encoder UpdateEncoder, offset uint64, encodingRef byte) error
 	Integrate(tx *Transaction, offset uint64) error
@@ -29,6 +30,10 @@ type Block interface {
 type BaseBlockType struct {
 	id     *ID
 	length uint64
+}
+
+func (self *BaseBlockType) Delete(tx *Transaction) error {
+	panic("not implemented")
 }
 
 func (self *BaseBlockType) ClockStart() uint64 {

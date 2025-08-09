@@ -1,6 +1,9 @@
 package ygo
 
+import (
+	"cmp"
 	"slices"
+)
 type PendingStructs struct {
 	missingState StateVector
 	update       []byte
@@ -54,5 +57,22 @@ func (ss *StructStore) GetClientClockEnd(client uint64) uint64 {
 	}
 	lastBlock := blocks[len(blocks)-1]
 	return lastBlock.ClockEnd() + 1
+}
+
+func (ss *StructStore) BinarySearchBlock(id *ID) (Block, int, bool) {
+	blocks, has := ss.clients[id.client]
+	if has {
+		index, present := slices.BinarySearchFunc(blocks, id.clock, func(b Block, c uint64) int {
+			if b.ContainsClock(c) {
+				return 0
+			}
+			return cmp.Compare(b.ClockEnd(), c)
+		})
+		if present {
+			return blocks[index], index, true
+		}
+		return nil, 0, false
+	}
+	return nil, 0, false
 }
 

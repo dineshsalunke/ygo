@@ -1,75 +1,73 @@
 package ygo
 
-type ItemFlags uint16
-
-func (self ItemFlags) Set(value ItemFlags) {
-	self |= value
+func (self *Item) Set(value uint16) {
+	self.info |= value
 }
 
-func (self ItemFlags) Clear(value ItemFlags) {
-	self &= ^value
+func (self *Item) Clear(value uint16) {
+	self.info &= ^value
 }
 
-func (self ItemFlags) Check(flag ItemFlags) bool {
-	return self&self == flag
+func (self *Item) Check(flag uint16) bool {
+	return self.info&self.info == flag
 }
 
-func (self ItemFlags) IsKeep() bool {
+func (self *Item) IsKeep() bool {
 	return self.Check(ItemFlagKeep)
 }
 
-func (self ItemFlags) SetKeep() {
+func (self *Item) SetKeep() {
 	self.Set(ItemFlagKeep)
 }
 
-func (self ItemFlags) ClearKeep() {
+func (self *Item) ClearKeep() {
 	self.Clear(ItemFlagKeep)
 }
 
-func (self ItemFlags) IsCountable() bool {
+func (self *Item) IsCountable() bool {
 	return self.Check(ItemFlagCountable)
 }
 
-func (self ItemFlags) SetCountable() {
+func (self *Item) SetCountable() {
 	self.Set(ItemFlagCountable)
 }
 
-func (self ItemFlags) ClearCountable() {
+func (self *Item) ClearCountable() {
 	self.Clear(ItemFlagCountable)
 }
 
-func (self ItemFlags) IsDeleted() bool {
+func (self *Item) IsDeleted() bool {
 	return self.Check(ItemFlagDeleted)
 }
 
-func (self ItemFlags) SetDeleted() {
+func (self *Item) SetDeleted() {
 	self.Set(ItemFlagDeleted)
 }
 
-func (self ItemFlags) ClearDeleted() {
+func (self *Item) ClearDeleted() {
 	self.Clear(ItemFlagDeleted)
 }
 
-func (self ItemFlags) IsMarked() bool {
+func (self *Item) IsMarked() bool {
 	return self.Check(ItemFlagMarked)
 }
 
-func (self ItemFlags) SetMarked() {
+func (self *Item) SetMarked() {
 	self.Set(ItemFlagMarked)
 }
 
-func (self ItemFlags) ClearMarked() {
+func (self *Item) ClearMarked() {
 	self.Clear(ItemFlagMarked)
 }
 
-func (self ItemFlags) IsLinked() bool {
+func (self *Item) IsLinked() bool {
 	return self.Check(ItemFlagMarked)
 }
 
-func (self ItemFlags) SetLinked() {
+func (self *Item) SetLinked() {
 	self.Set(ItemFlagLinked)
 }
 
-func (self ItemFlags) ClearLinked() {
+func (self *Item) ClearLinked() {
 	self.Clear(ItemFlagLinked)
 }

@@ -27,9 +27,9 @@ const (
 )
 
 const (
-	ItemFlagLinked    ItemFlags = 0b0001_0000_0000
-	ItemFlagMarked    ItemFlags = 0b0000_1000
-	ItemFlagDeleted   ItemFlags = 0b0000_0100
-	ItemFlagCountable ItemFlags = 0b0000_0010
-	ItemFlagKeep      ItemFlags = 0b0000_0001
+	ItemFlagLinked    uint16 = 0b0001_0000_0000
+	ItemFlagMarked    uint16 = 0b0000_1000
+	ItemFlagDeleted   uint16 = 0b0000_0100
+	ItemFlagCountable uint16 = 0b0000_0010
+	ItemFlagKeep      uint16 = 0b0000_0001
 )

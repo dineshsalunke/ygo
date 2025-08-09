@@ -2,6 +2,7 @@ package ygo
 
 import (
 	"cmp"
+	"fmt"
 	"slices"
 )
 type PendingStructs struct {

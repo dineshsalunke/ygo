@@ -72,7 +72,7 @@ func (ss *StructSet) excludeIdSet(set *IdSet) error {
 					continue
 				}
 				// find first id range whose clock is greater than excludeRange clock
-				if excludeRange.clock > firstBlock.ID().clock {
+				if excludeRange.clock > firstBlock.ClockStart() {
 					startIndex, err = findIndexCleanStart(nil, structRange.refs, excludeRange.clock)
 					if err != nil {
 						return err

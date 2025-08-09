@@ -7,11 +7,17 @@ type ItemContentDecoderFactory func(decoder UpdateDecoder, info Kind) (ItemConte
 var Decoders map[Kind]ItemContentDecoderFactory = make(map[Kind]ItemContentDecoderFactory, 0)
 
 type ItemContent interface {
-	IsCountable() bool
+	Content() any
 	Length() uint64
-	GetRef() Kind
+	IsCountable() bool
+	Copy() ItemContent
 	Splice(offset uint64) ItemContent
+	MergeWith(right ItemContent) bool
+	Integrate(tx *Transaction, item Block) error
+	Delete(tx *Transaction) error
+	GC(tx *Transaction) error
 	Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error
+	GetRef() Kind
 }
 
 func decodeItemContent(decoder UpdateDecoder, info Kind) (ItemContent, error) {

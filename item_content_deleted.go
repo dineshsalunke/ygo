@@ -4,6 +4,30 @@ type ItemContentDeleted struct {
 	length uint64
 }
 
+func (itemcontentdeleted *ItemContentDeleted) Content() any {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentdeleted *ItemContentDeleted) Copy() ItemContent {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentdeleted *ItemContentDeleted) MergeWith(right ItemContent) bool {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentdeleted *ItemContentDeleted) Integrate(tx *Transaction, item Block) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentdeleted *ItemContentDeleted) Delete(tx *Transaction) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentdeleted *ItemContentDeleted) GC(tx *Transaction) error {
+	panic("not implemented") // TODO: Implement
+}
+
 func (content *ItemContentDeleted) Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error {
 	panic("not implemented") // TODO: Implement
 }

@@ -14,6 +14,30 @@ type ItemContentType struct {
 	sharedType SharedType
 }
 
+func (itemcontenttype *ItemContentType) Content() any {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontenttype *ItemContentType) Copy() ItemContent {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontenttype *ItemContentType) MergeWith(right ItemContent) bool {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontenttype *ItemContentType) Integrate(tx *Transaction, item Block) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontenttype *ItemContentType) Delete(tx *Transaction) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontenttype *ItemContentType) GC(tx *Transaction) error {
+	panic("not implemented") // TODO: Implement
+}
+
 func newItemContentType(sharedType SharedType) *ItemContentType {
 	return &ItemContentType{
 		sharedType: sharedType,

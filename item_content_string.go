@@ -4,6 +4,30 @@ type ItemContentString struct {
 	str string
 }
 
+func (itemcontentstring *ItemContentString) Content() any {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentstring *ItemContentString) Copy() ItemContent {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentstring *ItemContentString) MergeWith(right ItemContent) bool {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentstring *ItemContentString) Integrate(tx *Transaction, item Block) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentstring *ItemContentString) Delete(tx *Transaction) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (itemcontentstring *ItemContentString) GC(tx *Transaction) error {
+	panic("not implemented") // TODO: Implement
+}
+
 func (content *ItemContentString) Write(encoder UpdateEncoder, offset uint64, offsetEnd uint64) error {
 	str := content.str[offset : len(content.str)-int(offsetEnd)]
 	if offset == 0 && offsetEnd == 0 {

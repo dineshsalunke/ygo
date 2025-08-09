@@ -46,8 +46,95 @@ func (ss *StructStore) GetStateVector() StateVector {
 	return sm
 }
 
+
 func (ss *StructStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byte, error) {
-	panic("not implemented")
+	unappliedIdSet := newIdSet()
+	numClients, err := decoder.ReadVarUint()
+	if err != nil {
+		return nil, err
+	}
+	for range numClients {
+		decoder.ResetDsCurrVal()
+		client, err := decoder.ReadVarUint()
+		if err != nil {
+			return nil, err
+		}
+		numOfDeletes, err := decoder.ReadVarUint()
+		if err != nil {
+			return nil, err
+		}
+		blocks, ok := ss.clients[client]
+		if !ok {
+			blocks = make([]Block, 0)
+		}
+		state := ss.GetClientClockEnd(client)
+
+		for range numOfDeletes {
+			clock, err := decoder.ReadDsClock()
+			if err != nil {
+				return nil, err
+			}
+			dsLength, err := decoder.ReadDsLength()
+			if err != nil {
+				return nil, err
+			}
+			clockEnd := clock + dsLength
+			if clock < state {
+				if state < clockEnd {
+					if err := unappliedIdSet.add(client, state, clockEnd-state); err != nil {
+						return nil, err
+					}
+				}
+				index, found := binarySearchClockIndex(blocks, clock)
+				if found {
+					item, ok := blocks[index].(*Item)
+					if ok && !item.Deleted() && item.ClockStart() < clock {
+						rightItem, err := item.Split(tx, clock-item.ClockEnd())
+						if err != nil {
+							return nil, err
+						}
+						index += index
+						ss.clients[client] = slices.Insert(blocks, index, rightItem)
+					}
+
+					for index < len(blocks) {
+						block := blocks[index]
+						if block.ClockStart() < clockEnd {
+							if !block.Deleted() {
+								if item, ok := block.(*Item); ok {
+									if clockEnd < block.ClockEnd()+1 {
+										rightItem, err := item.Split(tx, clockEnd-block.ClockStart())
+										if err != nil {
+											return nil, err
+										}
+										ss.clients[client] = slices.Insert(blocks, index, rightItem)
+									}
+								} else {
+									c := max(block.ClockStart(), clock)
+									unappliedIdSet.add(client, c, min(block.Length(), clockEnd-c))
+								}
+							}
+						}
+
+						index += 1
+					}
+				}
+			} else {
+				unappliedIdSet.add(client, clock, clockEnd-clock)
+			}
+		}
+	}
+	if len(unappliedIdSet.clients) > 0 {
+		encoder := newUpdateEncoderV1()
+		if err := encoder.WriteVarUint(0); err != nil {
+			return nil, err
+		}
+		if err := writeIdSet(unappliedIdSet, encoder); err != nil {
+			return nil, err
+		}
+		return encoder.Bytes(), nil
+	}
+	return nil, nil
 }
 
 // get client clock length

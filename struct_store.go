@@ -100,3 +100,29 @@ func findIndexCleanStart(tx *Transaction, blocks []Block, clock uint64) (uint64,
 	return uint64(index), nil
 }
 
+func (ss *StructStore) GetItemCleanStart(tx *Transaction, id *ID) (Block, error) {
+	blocks, has := ss.clients[id.client]
+	if has {
+		index, err := findIndexCleanStart(tx, blocks, id.clock)
+		if err != nil {
+			return nil, err
+		}
+		return blocks[index], nil
+	}
+	return nil, fmt.Errorf("failed to find blocks for client : %d", id.client)
+}
+
+func (ss *StructStore) GetItemCleanEnd(tx *Transaction, id *ID) (Block, error) {
+	block, index, has := ss.BinarySearchBlock(id)
+	if has && id.clock != block.ClockEnd() {
+		if _, isGC := block.(*GC); !isGC {
+			right, err := block.Split(tx, id.clock-block.ClockStart()+1)
+			if err != nil {
+				return nil, err
+			}
+			ss.clients[id.client] = slices.Insert(ss.clients[id.client], index, right)
+		}
+	}
+	return block, nil
+}
+

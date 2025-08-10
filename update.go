@@ -67,7 +67,7 @@ func mergeUpdatesV1(updates [][]byte) ([]byte, error) {
 	panic("not implemented")
 }
 
-func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
+func applyUpdate(decoder UpdateDecoder, tx *Transaction, txOrigin any) error {
 	retry := false
 	store := tx.doc.store
 	// Read remote updates
@@ -165,22 +165,23 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction) error {
 	if retry {
 		update := store.pendingStructs.update
 		store.pendingStructs = nil
-		if err := ApplyUpdateV1(tx.doc, update); err != nil {
+		if err := ApplyUpdateV1(tx.doc, update, nil); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func ApplyUpdateV1(doc *Doc, update []byte) error {
-	tx := newTransaction(doc, TransactionWithLocal(false))
-	decoder := newUpdateDecoderV1(update)
+func ApplyUpdateV1(doc *Doc, update []byte, txOrigin any) error {
+	_, err := Transact(doc, func(tx *Transaction) (any, error) {
+		decoder := newUpdateDecoderV1(update)
 
-	if err := applyUpdate(decoder, tx); err != nil {
-		return err
-	}
-
-	return tx.commitTransaction()
+		if err := applyUpdate(decoder, tx, txOrigin); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}, txOrigin, false)
+	return err
 }
 
 func diffUpdateV1(update []byte, otherUpdate []byte) ([]byte, error) {

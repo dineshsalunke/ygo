@@ -1,6 +1,7 @@
 package ygo
 
 import "reflect"
+
 type YMap struct {
 	*BaseSharedType
 
@@ -27,6 +28,7 @@ func NewYMapWithEntries(entries map[string]any) *YMap {
 func (ymap *YMap) Write(encoder UpdateEncoder) error {
 	return encoder.WriteTypeRef(1)
 }
+
 func (ymap *YMap) Delete(key string, tx *Transaction) error {
 	v, ok := ymap.blocks[key]
 	if ok {
@@ -35,6 +37,10 @@ func (ymap *YMap) Delete(key string, tx *Transaction) error {
 		}
 	}
 	return nil
+}
+
+func (ymap *YMap) Set(key string, value any) {
+	panic("not implemented")
 }
 
 func (ymap *YMap) Get(key string) (any, bool) {
@@ -55,3 +61,6 @@ func (ymap *YMap) Has(key string) bool {
 	return false
 }
 
+func (ymap *YMap) Clear() {
+	panic("not implemented")
+}

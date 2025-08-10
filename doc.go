@@ -5,19 +5,18 @@ import (
 )
 
 type Doc struct {
-	store *StructStore
-	share map[string]SharedType
+	store               *StructStore
+	share               map[string]SharedType
+	activeTransaction   *Transaction
+	transactionCleanups []*Transaction
 }
 
 func newDoc() *Doc {
 	return &Doc{
-		share: make(map[string]SharedType),
-		store: newStructStore(),
+		share:               make(map[string]SharedType),
+		store:               newStructStore(),
+		transactionCleanups: make([]*Transaction, 0),
 	}
-}
-
-func (doc *Doc) NewTransaction(opts ...TxOption) *Transaction {
-	return newTransaction(doc, opts...)
 }
 
 func (doc *Doc) get(key string) (SharedType, error) {

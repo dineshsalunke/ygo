@@ -6,7 +6,7 @@ import (
 	"slices"
 )
 
-type PendingStructs struct {
+type PendingUpdates struct {
 	missingState StateVector
 	update       []byte
 }
@@ -14,7 +14,7 @@ type PendingStructs struct {
 type StructStore struct {
 	clients            map[uint64][]Block // TODO: extend this into custom type and slice of block so we could add binary search funcs
 	skips              *IdSet
-	pendingStructs     *PendingStructs
+	pendingStructs     *PendingUpdates
 	pendingIdSetUpdate []byte
 }
 
@@ -139,7 +139,7 @@ func (ss *StructStore) GetStateVector() StateVector {
 	return sm
 }
 
-func (ss *StructStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructSet) (*PendingStructs, error) {
+func (ss *StructStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructSet) (*PendingUpdates, error) {
 	stack := make([]Block, 0)
 	clientIds := make([]uint64, len(remoteBlockSet.clients))
 	i := 0
@@ -283,7 +283,7 @@ func (ss *StructStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructS
 			return nil, err
 		}
 
-		return &PendingStructs{
+		return &PendingUpdates{
 			update:       encoder.Bytes(),
 			missingState: missingSv,
 		}, nil

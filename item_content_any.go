@@ -4,7 +4,7 @@ type ItemContentAny struct {
 	contents []any
 }
 
-func (self *ItemContentAny) Content() any {
+func (self *ItemContentAny) Content() []any {
 	panic("not implemented") // TODO: Implement
 }
 

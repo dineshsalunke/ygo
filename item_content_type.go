@@ -14,7 +14,7 @@ type ItemContentType struct {
 	sharedType SharedType
 }
 
-func (itemcontenttype *ItemContentType) Content() any {
+func (itemcontenttype *ItemContentType) Content() []any {
 	panic("not implemented") // TODO: Implement
 }
 

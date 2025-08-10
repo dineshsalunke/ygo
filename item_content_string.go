@@ -4,7 +4,7 @@ type ItemContentString struct {
 	str string
 }
 
-func (itemcontentstring *ItemContentString) Content() any {
+func (itemcontentstring *ItemContentString) Content() []any {
 	panic("not implemented") // TODO: Implement
 }
 

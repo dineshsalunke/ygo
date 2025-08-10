@@ -7,7 +7,7 @@ type ItemContentDecoderFactory func(decoder UpdateDecoder, info Kind) (ItemConte
 var Decoders map[Kind]ItemContentDecoderFactory = make(map[Kind]ItemContentDecoderFactory, 0)
 
 type ItemContent interface {
-	Content() any
+	Content() []any
 	Length() uint64
 	IsCountable() bool
 	Copy() ItemContent

@@ -4,7 +4,7 @@ type ItemContentDeleted struct {
 	length uint64
 }
 
-func (itemcontentdeleted *ItemContentDeleted) Content() any {
+func (itemcontentdeleted *ItemContentDeleted) Content() []any {
 	panic("not implemented") // TODO: Implement
 }
 

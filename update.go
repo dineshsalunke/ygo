@@ -1,6 +1,6 @@
 package ygo
 
-func readStructSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
+func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 	numOfUpdates, err := decoder.ReadVarUint()
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction, txOrigin any) error {
 	retry := false
 	store := tx.doc.store
 	// Read remote updates
-	remoteBlockSet, err := readStructSet(decoder, tx)
+	remoteBlockSet, err := readBlockSet(decoder, tx)
 	if err != nil {
 		return err
 	}

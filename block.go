@@ -7,21 +7,29 @@ import (
 
 type Kind byte
 
+type ClockVector interface {
+	ClockStart() uint64
+	ClockEnd() uint64
+	ClockRange() (uint64, uint64)
+	ContainsClock(clock uint64) bool
+	Length() uint64
+}
+
+type IdClockVector interface {
+	ClockVector
+	ID() *ID
+	Client() uint64
+}
+
 type Block interface {
+	IdClockVector
 	Deleted() bool
 	Delete(tx *Transaction) error
 	MergeWith(right Block) error
 	Write(encoder UpdateEncoder, offset uint64, encodingRef byte) error
 	Integrate(tx *Transaction, offset uint64) error
 	GetMissing(tx *Transaction, store *BlockStore) (uint64, bool, error)
-	ClockStart() uint64
-	ClockEnd() uint64
-	ClockRange() (uint64, uint64)
-	Client() uint64
-	Length() uint64
-	ContainsClock(clock uint64) bool
 	Split(tx *Transaction, diff uint64) (Block, error)
-	ID() *ID
 	Parent() SharedType
 	LastID() *ID
 	Splice(diff uint64) (Block, error)

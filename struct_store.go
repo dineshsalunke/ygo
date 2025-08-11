@@ -6,20 +6,20 @@ import (
 	"slices"
 )
 
-type PendingStructs struct {
+type PendingUpdates struct {
 	missingState StateVector
 	update       []byte
 }
 
-type StructStore struct {
+type BlockStore struct {
 	clients            map[uint64][]Block // TODO: extend this into custom type and slice of block so we could add binary search funcs
 	skips              *IdSet
-	pendingStructs     *PendingStructs
+	pendingStructs     *PendingUpdates
 	pendingIdSetUpdate []byte
 }
 
-func newStructStore() *StructStore {
-	return &StructStore{
+func newStructStore() *BlockStore {
+	return &BlockStore{
 		clients:            make(map[uint64][]Block),
 		skips:              newIdSet(),
 		pendingStructs:     nil,
@@ -83,7 +83,7 @@ func writeBlocks(encoder UpdateEncoder, blocks []Block, client uint64, idRanges 
 	return nil
 }
 
-func writeClientsBlocks(encoder UpdateEncoder, ss *StructStore, sv StateVector) error {
+func writeClientsBlocks(encoder UpdateEncoder, ss *BlockStore, sv StateVector) error {
 	sm := make(StateVector, 0)
 	for client, clock := range sv {
 		cl := ss.GetClientClockEnd(client)
@@ -121,7 +121,7 @@ func writeClientsBlocks(encoder UpdateEncoder, ss *StructStore, sv StateVector) 
 	return nil
 }
 
-func (ss *StructStore) GetStateVector() StateVector {
+func (ss *BlockStore) GetStateVector() StateVector {
 	cl := len(ss.clients)
 	sl := len(ss.skips.clients)
 	sm := make(StateVector, cl+sl)
@@ -139,7 +139,7 @@ func (ss *StructStore) GetStateVector() StateVector {
 	return sm
 }
 
-func (ss *StructStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructSet) (*PendingStructs, error) {
+func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructSet) (*PendingUpdates, error) {
 	stack := make([]Block, 0)
 	clientIds := make([]uint64, len(remoteBlockSet.clients))
 	i := 0
@@ -283,7 +283,7 @@ func (ss *StructStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructS
 			return nil, err
 		}
 
-		return &PendingStructs{
+		return &PendingUpdates{
 			update:       encoder.Bytes(),
 			missingState: missingSv,
 		}, nil
@@ -291,7 +291,7 @@ func (ss *StructStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructS
 	return nil, nil
 }
 
-func (ss *StructStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byte, error) {
+func (ss *BlockStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byte, error) {
 	unappliedIdSet := newIdSet()
 	numClients, err := decoder.ReadVarUint()
 	if err != nil {
@@ -382,7 +382,7 @@ func (ss *StructStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byt
 }
 
 // get client clock length
-func (ss *StructStore) GetClientClockEnd(client uint64) uint64 {
+func (ss *BlockStore) GetClientClockEnd(client uint64) uint64 {
 	blocks, has := ss.clients[client]
 	if !has || len(blocks) == 0 {
 		return 0
@@ -391,7 +391,7 @@ func (ss *StructStore) GetClientClockEnd(client uint64) uint64 {
 	return lastBlock.ClockEnd() + 1
 }
 
-func (ss *StructStore) BinarySearchBlock(id *ID) (Block, int, bool) {
+func (ss *BlockStore) BinarySearchBlock(id *ID) (Block, int, bool) {
 	blocks, has := ss.clients[id.client]
 	if has {
 		index, present := slices.BinarySearchFunc(blocks, id.clock, func(b Block, c uint64) int {
@@ -432,7 +432,7 @@ func findIndexCleanStart(tx *Transaction, blocks []Block, clock uint64) (uint64,
 	return uint64(index), nil
 }
 
-func (ss *StructStore) GetItemCleanStart(tx *Transaction, id *ID) (Block, error) {
+func (ss *BlockStore) GetItemCleanStart(tx *Transaction, id *ID) (Block, error) {
 	blocks, has := ss.clients[id.client]
 	if has {
 		index, err := findIndexCleanStart(tx, blocks, id.clock)
@@ -444,7 +444,7 @@ func (ss *StructStore) GetItemCleanStart(tx *Transaction, id *ID) (Block, error)
 	return nil, fmt.Errorf("failed to find blocks for client : %d", id.client)
 }
 
-func (ss *StructStore) GetItemCleanEnd(tx *Transaction, id *ID) (Block, error) {
+func (ss *BlockStore) GetItemCleanEnd(tx *Transaction, id *ID) (Block, error) {
 	block, index, has := ss.BinarySearchBlock(id)
 	if has && id.clock != block.ClockEnd() {
 		if _, isGC := block.(*GC); !isGC {
@@ -458,12 +458,12 @@ func (ss *StructStore) GetItemCleanEnd(tx *Transaction, id *ID) (Block, error) {
 	return block, nil
 }
 
-func (ss *StructStore) GetBlock(id *ID) Block {
+func (ss *BlockStore) GetBlock(id *ID) Block {
 	block, _, _ := ss.BinarySearchBlock(id)
 	return block
 }
 
-func (ss *StructStore) GetItem(id *ID) *Item {
+func (ss *BlockStore) GetItem(id *ID) *Item {
 	block := ss.GetBlock(id)
 	if block != nil {
 		return block.(*Item)

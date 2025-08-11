@@ -139,7 +139,7 @@ func (self *Item) Integrate(tx *Transaction, offset uint64) error {
 	return nil
 }
 
-func (self *Item) GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error) {
+func (self *Item) GetMissing(tx *Transaction, store *BlockStore) (uint64, bool, error) {
 	if self.origin != nil && (self.origin.clock >= store.GetClientClockEnd(self.origin.client) || store.skips.HasID(self.origin)) {
 		return self.origin.client, true, nil
 	}

@@ -48,7 +48,7 @@ func newTransaction(doc *Doc, opts ...TxOption) *Transaction {
 	return tx
 }
 
-func (tx *Transaction) Store() *StructStore {
+func (tx *Transaction) Store() *BlockStore {
 	return tx.doc.store
 }
 

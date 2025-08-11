@@ -5,7 +5,7 @@ import (
 )
 
 type Doc struct {
-	store               *StructStore
+	store               *BlockStore
 	share               map[string]SharedType
 	activeTransaction   *Transaction
 	transactionCleanups []*Transaction

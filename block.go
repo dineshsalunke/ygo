@@ -13,7 +13,7 @@ type Block interface {
 	MergeWith(right Block) error
 	Write(encoder UpdateEncoder, offset uint64, encodingRef byte) error
 	Integrate(tx *Transaction, offset uint64) error
-	GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error)
+	GetMissing(tx *Transaction, store *BlockStore) (uint64, bool, error)
 	ClockStart() uint64
 	ClockEnd() uint64
 	ClockRange() (uint64, uint64)
@@ -80,7 +80,7 @@ func (self *BaseBlockType) Integrate(tx *Transaction, offset uint64) error {
 	panic("not implemented") // TODO: Implement
 }
 
-func (self *BaseBlockType) GetMissing(tx *Transaction, store *StructStore) (uint64, bool, error) {
+func (self *BaseBlockType) GetMissing(tx *Transaction, store *BlockStore) (uint64, bool, error) {
 	panic("not implemented") // TODO: Implement
 }
 

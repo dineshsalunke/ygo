@@ -9,7 +9,7 @@ type Transaction struct {
 	afterState     StateVector
 	origin         any
 	local          bool
-	mergeBlocks    []Block
+	mergeBlocks    BlockList
 	pendingStructs *BlockSet
 	done           bool
 }
@@ -36,7 +36,7 @@ func newTransaction(doc *Doc, opts ...TxOption) *Transaction {
 		cleanups:       newIdSet(),
 		beforeState:    make(StateVector),
 		afterState:     make(StateVector),
-		mergeBlocks:    make([]Block, 0),
+		mergeBlocks:    make(BlockList, 0),
 		pendingStructs: newBlockSet(0),
 		local:          false,
 		origin:         nil,

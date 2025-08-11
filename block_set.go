@@ -14,7 +14,7 @@ func newBlockSet(length uint64) *BlockSet {
 	}
 }
 
-func (ss *BlockSet) addRange(client uint64, refs []Block) {
+func (ss *BlockSet) addRange(client uint64, refs BlockList) {
 	ss.clients[client] = &BlockRange{
 		refs: refs,
 	}

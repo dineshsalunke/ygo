@@ -26,7 +26,7 @@ func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 		}
 
 		id := newID(client, clock)
-		refs := make([]Block, numOfBlocks)
+		refs := make(BlockList, numOfBlocks)
 		for bi := range numOfBlocks {
 			info, err := decoder.ReadInfo()
 			if err != nil {

@@ -1,10 +1,5 @@
 package ygo
 
-import (
-	"cmp"
-	"slices"
-)
-
 type Kind byte
 
 type ClockVector interface {
@@ -106,13 +101,4 @@ func (self *BaseBlockType) Parent() SharedType {
 
 func (self *BaseBlockType) LastID() *ID {
 	panic("not implemented") // TODO: Implement
-}
-
-func binarySearchClockIndex(blocks []Block, clock uint64) (int, bool) {
-	return slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
-		if b.ContainsClock(c) {
-			return 0
-		}
-		return cmp.Compare(b.ClockEnd(), c)
-	})
 }

@@ -12,7 +12,7 @@ type PendingUpdates struct {
 }
 
 type BlockStore struct {
-	clients            map[uint64][]Block // TODO: extend this into custom type and slice of block so we could add binary search funcs
+	clients            map[uint64]BlockList // TODO: extend this into custom type and slice of block so we could add binary search funcs
 	skips              *IdSet
 	pendingStructs     *PendingUpdates
 	pendingIdSetUpdate []byte
@@ -20,14 +20,14 @@ type BlockStore struct {
 
 func newStructStore() *BlockStore {
 	return &BlockStore{
-		clients:            make(map[uint64][]Block),
+		clients:            make(map[uint64]BlockList),
 		skips:              newIdSet(),
 		pendingStructs:     nil,
 		pendingIdSetUpdate: nil,
 	}
 }
 
-func writeBlocks(encoder UpdateEncoder, blocks []Block, client uint64, idRanges []*IdRange) error {
+func writeBlocks(encoder UpdateEncoder, blocks BlockList, client uint64, idRanges []*IdRange) error {
 	blocksToWrite := 0
 
 	type tempStruct struct {
@@ -45,8 +45,8 @@ func writeBlocks(encoder UpdateEncoder, blocks []Block, client uint64, idRanges 
 		startClock := max(idRange.clock, firstPossibleClock)
 		endClock := min(idRange.clock+idRange.length, lastPossibleClock)
 		if startClock < endClock {
-			startIndex, _ := binarySearchClockIndex(blocks, startClock)
-			endIndex, _ := binarySearchClockIndex(blocks, endClock-1)
+			startIndex, _ := blocks.BinarySearchByClock(startClock)
+			endIndex, _ := blocks.BinarySearchByClock(endClock - 1)
 			blocksToWrite += endIndex - startIndex
 			indexRanges = append(indexRanges, tempStruct{start: uint64(startIndex), end: uint64(endIndex) + 1, startClock: startClock, endClock: endClock})
 		}
@@ -140,7 +140,7 @@ func (ss *BlockStore) GetStateVector() StateVector {
 }
 
 func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *BlockSet) (*PendingUpdates, error) {
-	stack := make([]Block, 0)
+	stack := make(BlockList, 0)
 	clientIds := make([]uint64, len(remoteBlockSet.clients))
 	i := 0
 	for client := range remoteBlockSet.clients {
@@ -190,9 +190,9 @@ func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *BlockSet
 				restBlocks.clients[client] = inapplicableItems.refs[inapplicableItems.i:]
 				delete(remoteBlockSet.clients, client)
 				inapplicableItems.i = 0
-				inapplicableItems.refs = make([]Block, 0)
+				inapplicableItems.refs = make(BlockList, 0)
 			} else {
-				restBlocks.clients[client] = []Block{item}
+				restBlocks.clients[client] = BlockList{item}
 			}
 
 			filtered := make([]uint64, 0)
@@ -203,7 +203,7 @@ func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *BlockSet
 			}
 			clientIds = filtered
 		}
-		stack = make([]Block, 0)
+		stack = make(BlockList, 0)
 	}
 
 	curBlockTarget.i += 1
@@ -309,7 +309,7 @@ func (ss *BlockStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byte
 		}
 		blocks, ok := ss.clients[client]
 		if !ok {
-			blocks = make([]Block, 0)
+			blocks = make(BlockList, 0)
 		}
 		state := ss.GetClientClockEnd(client)
 
@@ -329,7 +329,7 @@ func (ss *BlockStore) ApplyIdSet(decoder UpdateDecoder, tx *Transaction) ([]byte
 						return nil, err
 					}
 				}
-				index, found := binarySearchClockIndex(blocks, clock)
+				index, found := blocks.BinarySearchByClock(clock)
 				if found {
 					item, ok := blocks[index].(*Item)
 					if ok && !item.Deleted() && item.ClockStart() < clock {
@@ -408,7 +408,7 @@ func (ss *BlockStore) BinarySearchBlock(id *ID) (Block, int, bool) {
 	return nil, 0, false
 }
 
-func findIndexCleanStart(tx *Transaction, blocks []Block, clock uint64) (uint64, error) {
+func findIndexCleanStart(tx *Transaction, blocks BlockList, clock uint64) (uint64, error) {
 	index, exists := slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
 		if b.ContainsClock(c) {
 			return 0

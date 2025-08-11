@@ -1,20 +1,11 @@
 package ygo
 
 import (
-	"fmt"
 	"slices"
 )
 
 type BlockSet struct {
 	clients map[uint64]*BlockRange
-}
-
-func (ss BlockSet) GoString() string {
-	return fmt.Sprintf("StructSet {\n\t clients: %#v \n}", ss.clients)
-}
-
-func (ss BlockSet) String() string {
-	return fmt.Sprintf("StructSet {\n\t clients: %#v \n}", ss.clients)
 }
 
 func newStructSet(length uint64) *BlockSet {

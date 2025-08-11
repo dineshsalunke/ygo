@@ -2,9 +2,7 @@ package ygo
 
 import (
 	"cmp"
-	"fmt"
 	"slices"
-	"strings"
 )
 
 type IdSet struct {
@@ -15,16 +13,6 @@ func newIdSet() *IdSet {
 	return &IdSet{
 		clients: make(map[uint64]*IdRanges),
 	}
-}
-
-func (ss *IdSet) GoString() string {
-	builder := strings.Builder{}
-	builder.WriteString("IdSet {\r\tclients: {")
-	for client, ranges := range ss.clients {
-		builder.WriteString(fmt.Sprintf("%d:%#v\n", client, ranges))
-	}
-	builder.WriteString("}\r}")
-	return builder.String()
 }
 
 func (set *IdSet) add(client, clock, length uint64) error {

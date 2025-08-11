@@ -1,18 +1,8 @@
 package ygo
 
-import "fmt"
-
 type IdRange struct {
 	clock  uint64
 	length uint64
-}
-
-func (ir *IdRange) String() string {
-	return fmt.Sprintf("{clock:%d,length:%d}", ir.clock, ir.length)
-}
-
-func (ir *IdRange) GoString() string {
-	return fmt.Sprintf("{clock:%d,length:%d}", ir.clock, ir.length)
 }
 
 // helper method for more symantic name for `Clock` incase of `IdRange`

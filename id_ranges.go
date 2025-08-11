@@ -1,7 +1,6 @@
 package ygo
 
 import (
-	"fmt"
 	"slices"
 )
 
@@ -9,10 +8,6 @@ type IdRanges struct {
 	sorted   bool
 	lastUsed bool
 	ids      []*IdRange
-}
-
-func (irs *IdRanges) GoString() string {
-	return fmt.Sprintf("IdRanges{sorted:%v,lastUsed:%v,ids:%#v}", irs.sorted, irs.lastUsed, irs.ids)
 }
 
 func newIdRanges(ids []*IdRange) *IdRanges {

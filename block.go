@@ -32,10 +32,6 @@ type BaseBlockType struct {
 	length uint64
 }
 
-func (self *BaseBlockType) Delete(tx *Transaction) error {
-	panic("not implemented")
-}
-
 func (self *BaseBlockType) ClockStart() uint64 {
 	return self.id.clock
 }
@@ -57,11 +53,15 @@ func (self *BaseBlockType) Length() uint64 {
 }
 
 func (self *BaseBlockType) ContainsClock(clock uint64) bool {
-	return clock >= self.id.clock && clock <= self.ClockEnd()
+	return self.ClockStart() <= clock && clock <= self.ClockEnd()
 }
 
 func (self *BaseBlockType) ID() *ID {
 	return self.id
+}
+
+func (self *BaseBlockType) Delete(tx *Transaction) error {
+	panic("not implemented")
 }
 
 func (self *BaseBlockType) Deleted() bool {

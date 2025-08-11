@@ -5,31 +5,31 @@ import (
 	"slices"
 )
 
-type StructSet struct {
-	clients map[uint64]*StructRange
+type BlockSet struct {
+	clients map[uint64]*BlockRange
 }
 
-func (ss StructSet) GoString() string {
+func (ss BlockSet) GoString() string {
 	return fmt.Sprintf("StructSet {\n\t clients: %#v \n}", ss.clients)
 }
 
-func (ss StructSet) String() string {
+func (ss BlockSet) String() string {
 	return fmt.Sprintf("StructSet {\n\t clients: %#v \n}", ss.clients)
 }
 
-func newStructSet(length uint64) *StructSet {
-	return &StructSet{
-		clients: make(map[uint64]*StructRange, length),
+func newStructSet(length uint64) *BlockSet {
+	return &BlockSet{
+		clients: make(map[uint64]*BlockRange, length),
 	}
 }
 
-func (ss *StructSet) addRange(client uint64, refs []Block) {
-	ss.clients[client] = &StructRange{
+func (ss *BlockSet) addRange(client uint64, refs []Block) {
+	ss.clients[client] = &BlockRange{
 		refs: refs,
 	}
 }
 
-func (ss *StructSet) excludeIdSet(set *IdSet) error {
+func (ss *BlockSet) excludeIdSet(set *IdSet) error {
 	for excludeClientId, excludeRanges := range set.clients {
 		structRange, ok := ss.clients[excludeClientId]
 		if ok {

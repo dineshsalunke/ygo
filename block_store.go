@@ -139,7 +139,7 @@ func (ss *BlockStore) GetStateVector() StateVector {
 	return sm
 }
 
-func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructSet) (*PendingUpdates, error) {
+func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *BlockSet) (*PendingUpdates, error) {
 	stack := make([]Block, 0)
 	clientIds := make([]uint64, len(remoteBlockSet.clients))
 	i := 0
@@ -153,7 +153,7 @@ func (ss *BlockStore) IntegrateStructs(tx *Transaction, remoteBlockSet *StructSe
 
 	// Helper to get the next available struct batch to process.
 	// It iterates backwards through the sorted client IDs.
-	getNextBlockTarget := func() *StructRange {
+	getNextBlockTarget := func() *BlockRange {
 		for len(clientIds) > 0 {
 			clientID := clientIds[len(clientIds)-1]
 			target := remoteBlockSet.clients[clientID]

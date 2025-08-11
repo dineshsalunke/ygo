@@ -2,15 +2,15 @@ package ygo
 
 import "fmt"
 
-type StructRange struct {
+type BlockRange struct {
 	i    int
 	refs []Block
 }
 
-func (ss StructRange) GoString() string {
+func (ss BlockRange) GoString() string {
 	return fmt.Sprintf("StructRange {\n\t refs: %#v \n}", ss.refs)
 }
 
-func (ss StructRange) String() string {
+func (ss BlockRange) String() string {
 	return fmt.Sprintf("StructRange {\n\t refs: %#v \n}", ss.refs)
 }

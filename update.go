@@ -1,6 +1,6 @@
 package ygo
 
-func readStructSet(decoder UpdateDecoder, tx *Transaction) (*StructSet, error) {
+func readStructSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 	numOfUpdates, err := decoder.ReadVarUint()
 	if err != nil {
 		return nil, err

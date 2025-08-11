@@ -10,7 +10,7 @@ type Transaction struct {
 	origin         any
 	local          bool
 	mergeBlocks    []Block
-	pendingStructs *StructSet
+	pendingStructs *BlockSet
 	done           bool
 }
 

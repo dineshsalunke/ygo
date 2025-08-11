@@ -9,7 +9,7 @@ func (self *Item) Clear(value uint16) {
 }
 
 func (self *Item) Check(flag uint16) bool {
-	return self.info&self.info == flag
+	return self.info&flag == flag
 }
 
 func (self *Item) IsKeep() bool {

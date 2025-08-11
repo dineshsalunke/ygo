@@ -1,66 +1,68 @@
 package ygo
 
-func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
-	numOfUpdates, err := decoder.ReadVarUint()
-	if err != nil {
-		return nil, err
-	}
-	ss := newBlockSet(numOfUpdates)
+import "fmt"
 
-	for range numOfUpdates {
-		numOfStructs, err := decoder.ReadVarUint()
+func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
+	numOfClients, err := decoder.ReadVarUint()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read number of clients in update")
+	}
+	blockSet := newBlockSet(numOfClients)
+
+	for ci := range numOfClients {
+		numOfBlocks, err := decoder.ReadVarUint()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read number of blocks for client at index %d", ci)
 		}
 
 		client, err := decoder.ReadClient()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read client id at index %d", ci)
 		}
 
 		clock, err := decoder.ReadVarUint()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read clock for client %d at index %d", client, ci)
 		}
 
 		id := newID(client, clock)
-		refs := make([]Block, numOfStructs)
-		for i := range numOfStructs {
+		refs := make([]Block, numOfBlocks)
+		for bi := range numOfBlocks {
 			info, err := decoder.ReadInfo()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to read block info for client %d at index %d", client, bi)
 			}
 			switch Kind(info & 31) {
 			case BlockKindGC:
 				length, err := decoder.ReadLength()
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("failed to read gc length at index %d for client %d", bi, client)
 				}
 				block := newGC(id, length)
-				refs[i] = block
+				refs[bi] = block
 				clock = clock + length
 			case BlockKindSkip:
 				length, err := decoder.ReadVarUint()
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("failed to read skip length at index %d for client %d", bi, client)
 				}
 				block := newSkip(id, length)
-				refs[i] = block
+				refs[bi] = block
 				clock = clock + length
 			default:
 				block, err := decodeItem(id, decoder, Kind(info), tx.doc)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("failed to decode item block for client %d at index at %d with info %d: %w", client, bi, info&31, err)
 				}
-				refs[i] = block
+				refs[bi] = block
 				clock = clock + block.Length()
 			}
 
 		}
-		ss.addRange(client, refs)
+		blockSet.addRange(client, refs)
 	}
 
-	return ss, nil
+	return blockSet, nil
 }
 
 func mergeUpdatesV1(updates [][]byte) ([]byte, error) {

@@ -7,7 +7,7 @@ import (
 )
 
 func TestExcludeSet(t *testing.T) {
-	ss := newStructSet(4)
+	ss := newBlockSet(4)
 	ss.addRange(1, []Block{
 		newItem(newID(1, 10), WithContent(newItemContentAny([]any{1}))),
 		newItem(newID(1, 11), WithContent(newItemContentAny([]any{1, 2, 3, 4}))),

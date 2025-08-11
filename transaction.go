@@ -37,7 +37,7 @@ func newTransaction(doc *Doc, opts ...TxOption) *Transaction {
 		beforeState:    make(StateVector),
 		afterState:     make(StateVector),
 		mergeBlocks:    make([]Block, 0),
-		pendingStructs: newStructSet(0),
+		pendingStructs: newBlockSet(0),
 		local:          false,
 		origin:         nil,
 		done:           false,

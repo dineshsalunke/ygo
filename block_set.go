@@ -8,7 +8,7 @@ type BlockSet struct {
 	clients map[uint64]*BlockRange
 }
 
-func newStructSet(length uint64) *BlockSet {
+func newBlockSet(length uint64) *BlockSet {
 	return &BlockSet{
 		clients: make(map[uint64]*BlockRange, length),
 	}

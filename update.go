@@ -5,7 +5,7 @@ func readStructSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 	if err != nil {
 		return nil, err
 	}
-	ss := newStructSet(numOfUpdates)
+	ss := newBlockSet(numOfUpdates)
 
 	for range numOfUpdates {
 		numOfStructs, err := decoder.ReadVarUint()

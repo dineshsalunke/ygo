@@ -25,8 +25,8 @@ func (ss *BlockSet) excludeIdSet(set *IdSet) error {
 		structRange, ok := ss.clients[excludeClientId]
 		if ok {
 			// blocks := structRange.refs
-			firstBlock := structRange.refs[0]
-			lastBlock := structRange.refs[len(structRange.refs)-1]
+			firstBlock := structRange.FirstBlock()
+			lastBlock := structRange.LastBlock()
 			for _, excludeRange := range excludeRanges.getIdRanges() {
 				var err error
 				startIndex := uint64(0)
@@ -36,9 +36,10 @@ func (ss *BlockSet) excludeIdSet(set *IdSet) error {
 				if excludeRange.clock >= lastBlock.ClockEnd() {
 					continue
 				}
+
 				// find first id range whose clock is greater than excludeRange clock
 				if excludeRange.clock > firstBlock.ClockStart() {
-					startIndex, err = findIndexCleanStart(nil, structRange.refs, excludeRange.clock)
+					startIndex, err = structRange.refs.FindIndexCleanStart(nil, excludeRange.clock)
 					if err != nil {
 						return err
 					}
@@ -49,7 +50,7 @@ func (ss *BlockSet) excludeIdSet(set *IdSet) error {
 					continue
 				}
 				if excludeRange.end() < lastBlock.ClockEnd() {
-					endIndex, err = findIndexCleanStart(nil, structRange.refs, excludeRange.end())
+					endIndex, err = structRange.refs.FindIndexCleanStart(nil, excludeRange.end())
 					if err != nil {
 						return err
 					}

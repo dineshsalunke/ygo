@@ -15,6 +15,14 @@ func newIdSet() *IdSet {
 	}
 }
 
+func (set *IdSet) GetClientIds(client uint64) []*IdRange {
+	idRanges, found := set.clients[client]
+	if found {
+		return idRanges.getIdRanges()
+	}
+	return nil
+}
+
 func (set *IdSet) add(client, clock, length uint64) error {
 	if length > 0 {
 		idRanges, has := set.clients[client]

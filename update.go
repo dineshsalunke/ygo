@@ -83,13 +83,11 @@ func applyUpdate(decoder UpdateDecoder, tx *Transaction, txOrigin any) error {
 		localBlocks, has := store.clients[remoteClientId]
 		if has {
 			// Assume all the local updates are contigous and insert the remote updates at last
-			lastBlock := localBlocks[len(localBlocks)-1]
-			localState.add(remoteClientId, 0, lastBlock.ClockEnd())
-			idRanges, ok := store.skips.clients[remoteClientId]
-			if ok {
-				for _, idRange := range idRanges.getIdRanges() {
-					localState.delete(remoteClientId, idRange.clock, idRange.length)
-				}
+			endClock := localBlocks.Clock()
+			localState.add(remoteClientId, 0, endClock)
+			idRanges := store.skips.GetClientIds(remoteClientId)
+			for _, idRange := range idRanges {
+				localState.delete(remoteClientId, idRange.clock, idRange.length)
 			}
 		}
 	}

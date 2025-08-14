@@ -408,34 +408,10 @@ func (ss *BlockStore) BinarySearchBlock(id *ID) (Block, int, bool) {
 	return nil, 0, false
 }
 
-func findIndexCleanStart(tx *Transaction, blocks BlockList, clock uint64) (uint64, error) {
-	index, exists := slices.BinarySearchFunc(blocks, clock, func(b Block, c uint64) int {
-		if b.ContainsClock(c) {
-			return 0
-		}
-		return cmp.Compare(b.ClockEnd(), c)
-	})
-	if !exists {
-		return 0, fmt.Errorf("no block found for clock %d", clock)
-	}
-
-	block := blocks[index]
-	if block.ClockStart() < clock {
-		nBlock, err := block.Split(tx, clock-block.ClockStart())
-		if err != nil {
-			return 0, err
-		}
-		blocks = slices.Insert(blocks, index+1, nBlock)
-		return uint64(index + 1), nil
-	}
-
-	return uint64(index), nil
-}
-
 func (ss *BlockStore) GetItemCleanStart(tx *Transaction, id *ID) (Block, error) {
 	blocks, has := ss.clients[id.client]
 	if has {
-		index, err := findIndexCleanStart(tx, blocks, id.clock)
+		index, err := blocks.FindIndexCleanStart(tx, id.clock)
 		if err != nil {
 			return nil, err
 		}

@@ -326,49 +326,50 @@ func decodeItem(id *ID, decoder UpdateDecoder, info Kind, doc *Doc) (*Item, erro
 	if byte(info)&HasOriginFlag != 0 {
 		item.origin, err = decoder.ReadLeftID()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("decodeItem: failed to read left id %w", err)
 		}
 	}
 	if byte(info)&HasRightOriginFlag != 0 {
 		item.rightOrigin, err = decoder.ReadRightID()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("decodeItem: failed to read right id %w", err)
 		}
 	}
 	if cant_copy_parent_info {
 		parent_info, err := decoder.ReadParentInfo()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("decodeItem: failed to read parent info %w", err)
 		}
 		if parent_info {
 			// Parent string
-			// TODO: Get the parent item from the doc
-			key, err := decoder.ReadVarString()
+			item.parent, err = decoder.ReadVarString()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("decodeItem: failed to read parent string %w", err)
 			}
-			item.parent, err = doc.get(key)
-			if err != nil {
-				return nil, err
+			if doc != nil {
+				item.parent, err = doc.get(item.parent.(string))
+				if err != nil {
+					return nil, fmt.Errorf("decodeItem: failed to get parent from doc %w", err)
+				}
 			}
 		} else {
 			item.parent, err = decoder.ReadLeftID()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("decodeItem: failed to read left id parent %w", err)
 			}
 		}
 
 		if (byte(info) & HasParentSubFlag) != 0 {
 			item.parentSub, err = decoder.ReadVarString()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("decodeItem: failed to read parent sub %w", err)
 			}
 		}
 	}
 
 	content, err := decodeItemContent(decoder, info)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decodeItem: failed to decode item content with info %d %w", info&31, err)
 	}
 	WithContent(content)(item)
 

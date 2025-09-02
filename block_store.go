@@ -18,6 +18,34 @@ type BlockStore struct {
 	pendingIdSetUpdate []byte
 }
 
+func (store *BlockStore) DeleteSet() *IdSet {
+	ds := newIdSet()
+	for client, blocks := range store.clients {
+		dsItems := make([]*IdRange, 0)
+		for idx := 0; idx < len(blocks); idx++ {
+			block := blocks[idx]
+			if block.Deleted() {
+				clock := block.ClockStart()
+				length := block.Length()
+				if idx+1 < len(blocks) {
+					var next Block = blocks[idx+1]
+					for idx+1 < len(blocks) && next.Deleted() {
+						length += next.Length()
+						idx += 1
+						next = blocks[idx+1]
+					}
+				}
+				dsItems = append(dsItems, newIdRange(clock, length))
+			}
+			//
+		}
+		if len(dsItems) > 0 {
+			ds.clients[client] = newIdRanges(dsItems)
+		}
+	}
+	return ds
+}
+
 func newStructStore() *BlockStore {
 	return &BlockStore{
 		clients:            make(map[uint64]BlockList),
@@ -25,6 +53,42 @@ func newStructStore() *BlockStore {
 		pendingStructs:     nil,
 		pendingIdSetUpdate: nil,
 	}
+}
+
+func (ss *BlockStore) WriteBlock(block Block) error {
+	blocks, has := ss.clients[block.Client()]
+	if !has {
+		blocks = make(BlockList, 1)
+		blocks[0] = block
+		ss.clients[block.Client()] = blocks
+	} else {
+		if blocks.Clock() != block.ClockStart() {
+			index, found := blocks.BinarySearchByClock(block.ClockStart())
+			if found {
+				skipBlock := blocks[index]
+				diffStart := block.ClockStart() - skipBlock.ClockStart()
+				diffEnd := skipBlock.ClockStart() + skipBlock.Length() - block.ClockStart() - block.Length()
+				if diffStart > 0 {
+					blocks = append(blocks[:index+1], blocks[index:]...)
+					blocks[index] = newSkip(newID(block.Client(), skipBlock.ClockStart()), diffStart)
+					index += 1
+				}
+				if diffEnd > 0 {
+					blocks = append(blocks[:index+1+1], blocks[index+1:]...)
+					blocks[index+1] = newSkip(newID(block.Client(), block.ClockStart()+block.Length()), diffEnd)
+				}
+				blocks[index] = block
+				if err := ss.skips.delete(block.Client(), block.ClockStart(), block.Length()); err != nil {
+					return err
+				}
+				return nil
+			} else {
+				return fmt.Errorf("failed to write block %#v to block list", block)
+			}
+		}
+	}
+
+	return nil
 }
 
 func writeBlocks(encoder UpdateEncoder, blocks BlockList, client uint64, idRanges []*IdRange) error {
@@ -39,7 +103,7 @@ func writeBlocks(encoder UpdateEncoder, blocks BlockList, client uint64, idRange
 	indexRanges := make([]tempStruct, 0)
 	firstPossibleClock := blocks[0].ClockStart()
 	lastBlock := blocks[len(blocks)-1]
-	lastPossibleClock := lastBlock.ClockEnd()
+	lastPossibleClock := lastBlock.ClockStart() + lastBlock.Length()
 
 	for _, idRange := range idRanges {
 		startClock := max(idRange.clock, firstPossibleClock)
@@ -126,8 +190,7 @@ func (ss *BlockStore) GetStateVector() StateVector {
 	sl := len(ss.skips.clients)
 	sm := make(StateVector, cl+sl)
 	for client, blocks := range ss.clients {
-		block := blocks[len(blocks)-1]
-		sm[client] = block.ClockEnd()
+		sm[client] = blocks.Clock()
 	}
 
 	for client, block := range ss.skips.clients {

@@ -40,7 +40,7 @@ func (self *BaseSharedType) Length() uint64 {
 }
 
 func (self *BaseSharedType) Block() Block {
-	return self.block
+	return self.block.(Block)
 }
 
 func (self *BaseSharedType) SetStart(block Block) {
@@ -60,10 +60,7 @@ func (self *BaseSharedType) Doc() *Doc {
 }
 
 func (self *BaseSharedType) Parent() SharedType {
-	if self.block != nil {
-		return self.block.Parent()
-	}
-	return nil
+	return self.block.Parent().(SharedType)
 }
 
 func (self *BaseSharedType) GetBlock(key string) Block {

@@ -1,6 +1,7 @@
 package ygo
 
 import (
+	"math/rand"
 	"reflect"
 )
 
@@ -9,6 +10,7 @@ type Doc struct {
 	share               map[string]SharedType
 	activeTransaction   *Transaction
 	transactionCleanups []*Transaction
+	clientID            uint64
 }
 
 func newDoc() *Doc {
@@ -16,7 +18,12 @@ func newDoc() *Doc {
 		share:               make(map[string]SharedType),
 		store:               newStructStore(),
 		transactionCleanups: make([]*Transaction, 0),
+		clientID:            rand.Uint64(),
 	}
+}
+
+func NewDoc() *Doc {
+	return newDoc()
 }
 
 func (doc *Doc) get(key string) (SharedType, error) {
@@ -46,7 +53,9 @@ func (doc *Doc) GetMap(key string) (*YMap, error) {
 			ymap := &YMap{
 				BaseSharedType: basetype,
 			}
-			ymap.Integrate(doc, nil)
+			if err := ymap.Integrate(doc, nil); err != nil {
+				return nil, err
+			}
 			doc.share[key] = ymap
 			return ymap, nil
 		}
@@ -67,4 +76,17 @@ func (doc *Doc) GetItemKey(item any) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (doc *Doc) ApplyUpdate(update []byte, origin any) error {
+	_, err := Transact(doc, func(tx *Transaction) (any, error) {
+		tx.local = false
+		decoder := newUpdateDecoderV1(update)
+
+		if err := applyUpdate(decoder, tx, origin); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}, origin, false)
+	return err
 }

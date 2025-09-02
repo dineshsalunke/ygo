@@ -1,6 +1,8 @@
 package ygo
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 	numOfClients, err := decoder.ReadVarUint()
@@ -67,10 +69,6 @@ func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 	}
 
 	return blockSet, nil
-}
-
-func mergeUpdatesV1(updates [][]byte) ([]byte, error) {
-	panic("not implemented")
 }
 
 func applyUpdate(decoder UpdateDecoder, tx *Transaction, txOrigin any) error {
@@ -221,7 +219,13 @@ func readStateVector(decoder IdSetDecoder) (StateVector, error) {
 }
 
 func writeStateAsUpdate(encoder UpdateEncoder, doc *Doc, targetVector StateVector) error {
-	panic("not implemented")
+	if err := writeClientsBlocks(encoder, doc.store, targetVector); err != nil {
+		return err
+	}
+	if err := writeIdSet(doc.store.DeleteSet(), encoder); err != nil {
+		return err
+	}
+	return nil
 }
 
 func encodeStateAsUpate(doc *Doc, encodedTargetStateVector []byte, encoder UpdateEncoder) ([]byte, error) {
@@ -230,14 +234,17 @@ func encodeStateAsUpate(doc *Doc, encodedTargetStateVector []byte, encoder Updat
 	if err != nil {
 		return nil, err
 	}
+
 	if err := writeStateAsUpdate(encoder, doc, targetStateVector); err != nil {
 		return nil, err
 	}
+
 	updates := make([][]byte, 1)
-	updates = append(updates, encoder.Bytes())
+	updates[0] = encoder.Bytes()
 	if doc.store.pendingIdSetUpdate != nil {
 		updates = append(updates, doc.store.pendingIdSetUpdate)
 	}
+
 	if doc.store.pendingStructs != nil {
 		diffedUpdates, err := diffUpdateV1(doc.store.pendingIdSetUpdate, encodedTargetStateVector)
 		if err != nil {

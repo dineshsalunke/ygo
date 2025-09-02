@@ -143,8 +143,9 @@ func (self *Item) Integrate(tx *Transaction, offset uint64) error {
 					r = r.left.(*Item)
 				}
 			} else {
-				r, _ = self.Parent().Start().(*Item)
-				self.Parent().SetStart(self)
+				parent := self.Parent().(SharedType)
+				r, _ = parent.Start().(*Item)
+				parent.SetStart(self)
 			}
 			self.right = r
 		}
@@ -152,7 +153,8 @@ func (self *Item) Integrate(tx *Transaction, offset uint64) error {
 		if self.right.(*Item) != nil {
 			self.right.(*Item).left = self
 		} else if self.parentSub != "" {
-			self.Parent().SetBlock(self.parentSub, self)
+			parent := self.Parent().(SharedType)
+			parent.SetBlock(self.parentSub, self)
 			if self.left != nil {
 				if err := self.left.Delete(tx); err != nil {
 					return err
@@ -164,8 +166,24 @@ func (self *Item) Integrate(tx *Transaction, offset uint64) error {
 			p.length += self.length
 		}
 
+		tx.insertSet.add(self.Client(), self.ClockStart(), self.Length())
+		if err := tx.doc.store.WriteBlock(self); err != nil {
+			return err
+		}
+
 		if err := self.content.Integrate(tx, self); err != nil {
 			return err
+		}
+
+		parent := self.parent.(SharedType)
+		var block Block
+		if parent != nil {
+			block = parent.Block()
+		}
+		if (!reflect.ValueOf(block).IsNil() && block.Deleted()) || (self.parentSub != "" && self.right != nil) {
+			if err := self.Delete(tx); err != nil {
+				return nil
+			}
 		}
 	} else {
 		return newGC(self.id, self.length).Integrate(tx, 0)
@@ -322,7 +340,7 @@ func (self *Item) Write(encoder UpdateEncoder, offset uint64, offsetEnd byte) er
 				return err
 			}
 		case SharedType:
-			parentItem := self.Parent()
+			parentItem := self.Parent().(SharedType)
 			if parentItem == nil {
 				// FIXME: should we return error if the key for item is not found
 				// Ideally it should never happen, but better safe then sorry right !

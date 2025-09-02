@@ -25,7 +25,7 @@ type Block interface {
 	Integrate(tx *Transaction, offset uint64) error
 	GetMissing(tx *Transaction, store *BlockStore) (uint64, bool, error)
 	Split(tx *Transaction, diff uint64) (Block, error)
-	Parent() SharedType
+	Parent() any
 	LastID() *ID
 	Splice(diff uint64) (Block, error)
 }
@@ -95,7 +95,7 @@ func (self *BaseBlockType) Splice(diff uint64) (Block, error) {
 	panic("not implemented")
 }
 
-func (self *BaseBlockType) Parent() SharedType {
+func (self *BaseBlockType) Parent() any {
 	panic("not implemented") // TODO: Implement
 }
 

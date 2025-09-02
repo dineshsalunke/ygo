@@ -50,7 +50,11 @@ func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 				refs[bi] = block
 				clock += length
 			default:
-				block, err := decodeItem(id, decoder, Kind(info), tx.doc)
+				var doc *Doc = nil
+				if tx != nil {
+					doc = tx.doc
+				}
+				block, err := decodeItem(id, decoder, Kind(info), doc)
 				if err != nil {
 					return nil, fmt.Errorf("failed to decode item block for client %d at index at %d with info %d: %w", client, bi, info&31, err)
 				}

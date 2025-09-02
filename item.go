@@ -69,7 +69,8 @@ func newItem(id *ID, opts ...ItemOption) *Item {
 			id:     id,
 			length: 0,
 		},
-		info: 0,
+		info:   0,
+		parent: nil,
 	}
 	for _, opt := range opts {
 		opt(item)
@@ -77,8 +78,8 @@ func newItem(id *ID, opts ...ItemOption) *Item {
 	return item
 }
 
-func (self *Item) Parent() SharedType {
-	return self.parent.(SharedType)
+func (self *Item) Parent() any {
+	return self.parent
 }
 
 func (self *Item) Deleted() bool {

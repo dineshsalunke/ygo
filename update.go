@@ -40,7 +40,7 @@ func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 				}
 				block := newGC(id, length)
 				refs[bi] = block
-				clock = clock + length
+				clock += length
 			case BlockKindSkip:
 				length, err := decoder.ReadVarUint()
 				if err != nil {
@@ -48,14 +48,14 @@ func readBlockSet(decoder UpdateDecoder, tx *Transaction) (*BlockSet, error) {
 				}
 				block := newSkip(id, length)
 				refs[bi] = block
-				clock = clock + length
+				clock += length
 			default:
 				block, err := decodeItem(id, decoder, Kind(info), tx.doc)
 				if err != nil {
 					return nil, fmt.Errorf("failed to decode item block for client %d at index at %d with info %d: %w", client, bi, info&31, err)
 				}
 				refs[bi] = block
-				clock = clock + block.Length()
+				clock += block.Length()
 			}
 
 		}

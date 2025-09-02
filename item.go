@@ -30,6 +30,39 @@ func WithContent(content ItemContent) ItemOption {
 	}
 }
 
+func WithLeft(left Block) ItemOption {
+	return func(item *Item) {
+		item.left = left
+	}
+}
+
+func WithLeftId(origin *ID) ItemOption {
+	return func(item *Item) {
+		item.origin = origin
+	}
+}
+
+func WithLeftLastID(left Block) ItemOption {
+	return func(item *Item) {
+		item.left = left
+		if left != nil {
+			item.origin = left.LastID()
+		}
+	}
+}
+
+func WithParent(parent any) ItemOption {
+	return func(item *Item) {
+		item.parent = parent
+	}
+}
+
+func WithParentSub(parentSub string) ItemOption {
+	return func(item *Item) {
+		item.parentSub = parentSub
+	}
+}
+
 func newItem(id *ID, opts ...ItemOption) *Item {
 	item := &Item{
 		BaseBlockType: &BaseBlockType{
